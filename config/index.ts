@@ -23,9 +23,15 @@ export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
       BUILD_TIME: JSON.stringify(new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 16))
     },
     copy: {
-      // 训练背景音乐《若如初见（开智小曲）》的拷贝规则暂留空：
-      // 待用户提供 MP3 后填入 { from: 'src/assets/audio/bgm.mp3', to: 'dist/static/audio/bgm.mp3', noErrorOnMissing: true }
-      patterns: [],
+      // 训练背景音乐《若如初见（开智小曲）》：从源码目录拷贝到构建产物的 static/audio/ 下，
+      // 与 bgm.ts 里的 BGM_URL = 'static/audio/bgm.mp3' 对应
+      patterns: [
+        {
+          from: 'src/assets/audio/bgm.mp3',
+          to: 'dist/static/audio/bgm.mp3',
+          noErrorOnMissing: true,
+        },
+      ],
       options: {},
     },
     framework: 'react',

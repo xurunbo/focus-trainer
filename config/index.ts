@@ -18,9 +18,15 @@ export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
     sourceRoot: 'src',
     outputRoot: process.env.TARO_OUTPUT_DIR || 'dist',
     plugins: ['@tarojs/plugin-html'],
-    defineConstants: {},
+    defineConstants: {
+      // 每次构建注入当前时间（北京时间），用于在「我的」页展示，方便判断手机加载的是否为最新代码
+      BUILD_TIME: JSON.stringify(new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 16))
+    },
     copy: {
-      patterns: [],
+      // 训练背景音乐《若如初见（开智小曲）》：拷贝到 static/audio/ 供线上播放
+      patterns: [
+        { from: 'assets/audio/bgm.mp3', to: 'static/audio/bgm.mp3', noErrorOnMissing: true }
+      ],
       options: {},
     },
     framework: 'react',

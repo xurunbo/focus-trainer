@@ -1,5 +1,8 @@
 /// <reference types="@tarojs/taro" />
 
+// 构建时间（由 config/index.ts 的 defineConstants 在每次构建时注入，格式：YYYY-MM-DD HH:mm 北京时间）
+declare const BUILD_TIME: string
+
 declare module '*.png';
 declare module '*.gif';
 declare module '*.jpg';

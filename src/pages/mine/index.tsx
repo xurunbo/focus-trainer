@@ -85,7 +85,7 @@ const MinePage: React.FC = () => {
       <View className={styles.about}>
         <Text className={styles.aboutTitle}>脑力修炼馆</Text>
         <Text className={styles.aboutText}>专注不是天生的，是练出来的</Text>
-        <Text className={styles.aboutVer}>v1.0.0</Text>
+        <Text className={styles.aboutVer}>v1.0.0 · 构建于 {BUILD_TIME}</Text>
       </View>
     </View>
   )

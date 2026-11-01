@@ -3,7 +3,6 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore, showAchievementToasts } from '@/store/user'
 import GameShell from '@/components/GameShell'
-import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import StyledView from '@/components/StyledView'
 import { getGameMeta } from '@/data/games'
@@ -71,6 +70,7 @@ const TrackingPage: React.FC = () => {
 
   const [stage, setStage] = useState<Stage>('intro')
   const [balls, setBalls] = useState<Ball[]>([])
+  const [observeLeft, setObserveLeft] = useState(cfg.observeSec)
   const [correctCount, setCorrectCount] = useState(0)
   const [score, setScore] = useState(0)
   const startTime = useRef(0)
@@ -96,6 +96,7 @@ const TrackingPage: React.FC = () => {
     setBalls(newBalls)
     setCorrectCount(0)
     setScore(0)
+    setObserveLeft(cfg.observeSec)
     startTime.current = Date.now()
     setStage('observe')
   }
@@ -138,10 +139,27 @@ const TrackingPage: React.FC = () => {
     return () => cancelAnimationFrame(raf)
   }, [stage])
 
-  // 观察阶段兜底计时：倒计时环结束时切到指认阶段（双保险，防止组件异常卡死）
+  // 观察阶段倒计时：页面自带本地计时器驱动阶段切换（不依赖任何子组件回调，
+  // 保证"观察满 observeSec 秒才进入指认"这一核心规则稳定成立）
   useEffect(() => {
     if (stage !== 'observe') return
-    const t = setTimeout(() => setStage('answer'), cfg.observeSec * 1000 + 400)
+    setObserveLeft(cfg.observeSec)
+    let left = cfg.observeSec
+    const timer = setInterval(() => {
+      left -= 1
+      setObserveLeft(left)
+      if (left <= 0) {
+        clearInterval(timer)
+        setStage('answer')
+      }
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [stage, cfg.observeSec])
+
+  // 双保险：万一计时器被浏览器异常节流，超时后也强制进入指认，避免卡死
+  useEffect(() => {
+    if (stage !== 'observe') return
+    const t = setTimeout(() => setStage('answer'), cfg.observeSec * 1000 + 600)
     return () => clearTimeout(t)
   }, [stage, cfg.observeSec])
 
@@ -251,13 +269,16 @@ const TrackingPage: React.FC = () => {
           <View className={styles.controlBar}>
             {stage === 'observe' && (
               <View className={styles.observeBar}>
-                <CountdownRing
-                  total={cfg.observeSec}
-                  running={true}
-                  size={88}
-                  label="秒"
-                  onComplete={() => setStage('answer')}
-                />
+                <View className={styles.countChip}>
+                  <Text className={styles.countNum}>{observeLeft}</Text>
+                  <Text className={styles.countUnit}>秒</Text>
+                </View>
+                <View className={styles.countTrack}>
+                  <StyledView
+                    className={styles.countFill}
+                    css={{ width: `${Math.max(0, (observeLeft / cfg.observeSec) * 100)}%` }}
+                  />
+                </View>
                 <Text className={styles.tipText}>仔细观察：哪些球正在移动？</Text>
               </View>
             )}

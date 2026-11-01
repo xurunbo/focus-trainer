@@ -83,6 +83,9 @@
   height: 64rpx;
   border-radius: $radius-round;
   background: radial-gradient(circle at 35% 30%, #6b5a38, #3a2f1c);
+  /* 细金边提升球体在暗底上的辨识度，移动中更容易看清 */
+  border: 2rpx solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,6 +150,43 @@
   background: rgba(212, 175, 55, 0.1);
   border: 1rpx solid $color-gold-border;
   border-radius: $radius-round;
+}
+
+/* 观察期倒计时：数字徽章 + 进度条 */
+.countChip {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+  min-width: 72rpx;
+  justify-content: center;
+}
+
+.countNum {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: 1;
+  @include nums;
+}
+
+.countUnit {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.countTrack {
+  width: 160rpx;
+  height: 8rpx;
+  border-radius: $radius-round;
+  background: rgba(212, 175, 55, 0.18);
+  overflow: hidden;
+}
+
+.countFill {
+  height: 100%;
+  border-radius: $radius-round;
+  background: linear-gradient(90deg, $color-primary-dark, $color-primary-light);
+  transition: width 0.9s linear;
 }
 
 .tipText {

@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text, Switch } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
+import NavBar from '@/components/NavBar'
 import styles from './index.module.scss'
 
 const GOALS = [2, 4, 6, 8]
@@ -26,6 +27,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
+      <NavBar title="设置" />
       {/* 训练偏好 */}
       <View className={styles.card}>
         <Text className={styles.cardTitle}>训练偏好</Text>

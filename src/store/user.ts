@@ -153,8 +153,17 @@ export const useUserStore = create<UserStore>()((set, get) => ({
 
   completeFocus: (minutes) => {
     const state = get()
+    const today = todayStr()
+    const isNewDay = state.todayDate !== today
+    const todayDone = isNewDay
+      ? ['focus']
+      : state.todayDone.includes('focus')
+        ? state.todayDone
+        : [...state.todayDone, 'focus']
     const nextState: UserState = {
       ...state,
+      todayDone,
+      todayDate: today,
       pomodoroCount: state.pomodoroCount + 1,
       focusTotalMin: state.focusTotalMin + minutes,
       scores: { ...state.scores, focus: Math.min(100, state.scores.focus + 1) }

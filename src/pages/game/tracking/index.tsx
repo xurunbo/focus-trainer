@@ -6,7 +6,8 @@ import GameShell from '@/components/GameShell'
 import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
-import { expGain } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { feedback } from '@/utils/feedback'
 import { randomInt, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
@@ -133,10 +134,12 @@ const TrackingPage: React.FC = () => {
     const durationSec = Math.max(1, Math.round((Date.now() - startTime) / 1000))
     setCorrectCount(correct)
     setScore(finalScore)
+    feedback(finalScore >= 60 ? 'finish' : 'wrong')
+    // 揭示答案：目标球标星，选错的球标叉
     setBalls((prev) =>
       prev.map((b) => ({
         ...b,
-        reveal: b.isTarget ? 'correct' : 'none'
+        reveal: b.isTarget ? 'correct' : b.selected ? 'wrong' : 'none'
       }))
     )
     const before = new Set(store.achievements)
@@ -166,7 +169,7 @@ const TrackingPage: React.FC = () => {
   }
 
   return (
-    <GameShell title={meta.name} stage={stageLabel[stage]}>
+    <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {/* 介绍 */}
       {stage === 'intro' && (
         <View className={styles.intro}>
@@ -194,7 +197,8 @@ const TrackingPage: React.FC = () => {
                   styles.ball,
                   stage === 'memorize' && b.isTarget ? styles.ballTarget : '',
                   stage === 'answer' && b.selected ? styles.ballSelected : '',
-                  b.reveal === 'correct' ? styles.ballReveal : ''
+                  b.reveal === 'correct' ? styles.ballReveal : '',
+                  b.reveal === 'wrong' ? styles.ballWrong : ''
                 ].join(' ')}
                 style={{
                   left: `${b.x}rpx`,
@@ -204,6 +208,7 @@ const TrackingPage: React.FC = () => {
                 onClick={() => toggleSelect(b.id)}
               >
                 {b.reveal === 'correct' ? <Text className={styles.ballStar}>★</Text> : null}
+                {b.reveal === 'wrong' ? <Text className={styles.ballCross}>✕</Text> : null}
               </View>
             ))}
           </View>
@@ -240,7 +245,7 @@ const TrackingPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime) / 1000))}
         exp={expGain(score, difficulty)}
-        detail={`命中 ${correctCount}/${cfg.targets} 个目标球`}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · 命中 ${correctCount}/${cfg.targets} 个目标球`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

@@ -11,16 +11,19 @@ interface ResultOverlayProps {
   durationSec: number
   exp: number
   detail: string
+  scoreUnit?: string
+  gradeLabel?: string
   onRetry: () => void
   onHome: () => void
 }
 
 // 训练结算浮层
 const ResultOverlay: React.FC<ResultOverlayProps> = ({
-  visible, score, accuracy, durationSec, exp, detail, onRetry, onHome
+  visible, score, accuracy, durationSec, exp, detail, scoreUnit = '分', gradeLabel, onRetry, onHome
 }) => {
   if (!visible) return null
-  const grade = gradeFromScore(score)
+  const grade = gradeLabel ? { label: gradeLabel, color: '#f5d76e' } : gradeFromScore(score)
+  const durText = durationSec >= 60 ? `${Math.round(durationSec / 60)} 分钟` : `${durationSec}s`
 
   return (
     <View className={styles.mask}>
@@ -30,7 +33,7 @@ const ResultOverlay: React.FC<ResultOverlayProps> = ({
         <Text className={styles.grade} style={{ color: grade.color }}>{grade.label}</Text>
         <View className={styles.scoreBox}>
           <Text className={styles.scoreNum}>{score}</Text>
-          <Text className={styles.scoreUnit}>分</Text>
+          <Text className={styles.scoreUnit}>{scoreUnit}</Text>
         </View>
         <View className={styles.statRow}>
           <View className={styles.statItem}>
@@ -39,7 +42,7 @@ const ResultOverlay: React.FC<ResultOverlayProps> = ({
           </View>
           <View className={styles.statDivider} />
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{durationSec}s</Text>
+            <Text className={styles.statValue}>{durText}</Text>
             <Text className={styles.statLabel}>用时</Text>
           </View>
           <View className={styles.statDivider} />

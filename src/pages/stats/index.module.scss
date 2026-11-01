@@ -208,6 +208,19 @@
   @include nums;
 }
 
+.recordMore {
+  display: block;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  padding: $spacing-sm 0 0;
+  transition: opacity $transition-fast;
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
 /* 空状态 */
 .emptyBox {
   display: flex;

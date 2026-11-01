@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
@@ -9,6 +9,7 @@ import styles from './index.module.scss'
 
 const StatsPage: React.FC = () => {
   const store = useUserStore()
+  const [showAllRecords, setShowAllRecords] = useState(false)
   const { total, avgScore, best, totalMin } = summarizeHistory(store.history)
   const dims = [
     { label: '记忆', value: store.scores.memory, color: '#f5d76e' },
@@ -115,7 +116,7 @@ const StatsPage: React.FC = () => {
           </View>
         ) : (
           <View className={styles.recordList}>
-            {store.history.slice(0, 8).map((r) => (
+            {(showAllRecords ? store.history : store.history.slice(0, 8)).map((r) => (
               <View key={r.id} className={styles.recordItem}>
                 <Text className={styles.recordName}>{r.gameName}</Text>
                 <Text className={styles.recordDetail}>{r.detail}</Text>
@@ -124,6 +125,11 @@ const StatsPage: React.FC = () => {
             ))}
           </View>
         )}
+        {store.history.length > 8 ? (
+          <Text className={styles.recordMore} onClick={() => setShowAllRecords((v) => !v)}>
+            {showAllRecords ? '收起 ▲' : `展开全部 ${store.history.length} 条 ▼`}
+          </Text>
+        ) : null}
       </View>
     </View>
   )

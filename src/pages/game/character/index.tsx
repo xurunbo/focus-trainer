@@ -7,7 +7,8 @@ import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
 import { CHAR_GROUPS, CHAR_GRID_SPEC } from '@/data/characters'
-import { expGain } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { feedback } from '@/utils/feedback'
 import { randomInt, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
@@ -19,6 +20,7 @@ interface CharRound {
   distractor: string
   tip: string
   targetIndex: number
+  answerIndex: number
   total: number
 }
 
@@ -43,13 +45,20 @@ const CharacterPage: React.FC = () => {
   const buildRounds = (): CharRound[] => {
     const total = spec.cols * spec.rows
     const groups = shuffle(CHAR_GROUPS).slice(0, ROUNDS)
-    return groups.map((g) => ({
-      target: g.target,
-      distractor: g.distractor,
-      tip: g.tip,
-      targetIndex: randomInt(0, total - 1),
-      total
-    }))
+    return groups.map((g) => {
+      const targetIndex = randomInt(0, total - 1)
+      // 答题阶段目标字换一个随机位置，避免与记忆位置重合变成"送分题"
+      let answerIndex = randomInt(0, total - 1)
+      if (answerIndex === targetIndex) answerIndex = (answerIndex + 1) % total
+      return {
+        target: g.target,
+        distractor: g.distractor,
+        tip: g.tip,
+        targetIndex,
+        answerIndex,
+        total
+      }
+    })
   }
 
   const startGame = () => {
@@ -88,7 +97,8 @@ const CharacterPage: React.FC = () => {
   const resolveRound = (pickedIndex: number) => {
     setPicked(pickedIndex)
     const round = rounds[roundIndex]
-    const right = pickedIndex === round.targetIndex
+    const right = pickedIndex === round.answerIndex
+    feedback(right ? 'right' : 'wrong')
     const nextCorrect = right ? correctCount + 1 : correctCount
     setCorrectCount(nextCorrect)
     const isLast = roundIndex + 1 >= ROUNDS
@@ -107,6 +117,7 @@ const CharacterPage: React.FC = () => {
     const finalScore = Math.round((finalCorrect / ROUNDS) * 100)
     const durationSec = Math.max(1, Math.round((Date.now() - startTime) / 1000))
     setScore(finalScore)
+    feedback('finish')
     const before = new Set(store.achievements)
     store.addRecord({
       gameId: 'character',
@@ -144,7 +155,8 @@ const CharacterPage: React.FC = () => {
     const cellW = `calc((100% - ${(spec.cols - 1) * gap}rpx) / ${spec.cols})`
     const cells = []
     for (let i = 0; i < currentRound.total; i++) {
-      const isTarget = i === currentRound.targetIndex
+      // 记忆阶段：目标字位于 targetIndex（金环标记）；答题阶段：目标字换到 answerIndex
+      const isTarget = showMark ? i === currentRound.targetIndex : i === currentRound.answerIndex
       const isPicked = picked === i
       cells.push(
         <View
@@ -170,15 +182,15 @@ const CharacterPage: React.FC = () => {
   }
 
   return (
-    <GameShell title={meta.name} stage={stageLabel[stage]}>
+    <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {stage === 'intro' && (
         <View className={styles.intro}>
           <Text className={styles.introIcon}>🔍</Text>
           <Text className={styles.introTitle}>形近字辨识</Text>
           <Text className={styles.introText}>
             在满屏相似的汉字中，找出唯一不同的那个。{"\n"}
-            字形越接近，越考验眼力。{"\n"}
-            记住目标的位置，然后在乱阵中把它找出来。
+            先记住金环标记的目标字，{"\n"}
+            它会在乱阵中换个位置，考考你能不能认出来。
           </Text>
           <View className={styles.startBtn} onClick={startGame}>
             <Text className={styles.startBtnText}>开始训练</Text>
@@ -189,7 +201,7 @@ const CharacterPage: React.FC = () => {
       {stage === 'memorize' && currentRound && (
         <View className={styles.memorizeArea}>
           <CountdownRing total={spec.memorizeSec} running />
-          <Text className={styles.tip}>找到它，记住它的位置</Text>
+          <Text className={styles.tip}>记住金环中的目标字</Text>
           {renderGrid(true)}
         </View>
       )}
@@ -215,7 +227,7 @@ const CharacterPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime) / 1000))}
         exp={expGain(score, difficulty)}
-        detail={`命中 ${correctCount}/${ROUNDS} 次目标`}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · 命中 ${correctCount}/${ROUNDS} 次目标`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

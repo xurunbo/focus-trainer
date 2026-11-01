@@ -174,6 +174,43 @@
   }
 }
 
+/* 作答反馈：对/错/揭示正确项 */
+.optionBtnRight {
+  display: flex;
+  align-items: center;
+  height: 96rpx;
+  background: rgba(76, 175, 80, 0.16);
+  border: 1rpx solid $color-success;
+  border-radius: $radius-md;
+  padding: 0 $spacing-lg;
+  transition: all $transition-fast;
+}
+
+.optionBtnWrong {
+  display: flex;
+  align-items: center;
+  height: 96rpx;
+  background: rgba(230, 69, 69, 0.16);
+  border: 1rpx solid $color-error;
+  border-radius: $radius-md;
+  padding: 0 $spacing-lg;
+  transition: all $transition-fast;
+}
+
+.optionMark {
+  margin-left: auto;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-error;
+}
+
+.optionMarkRight {
+  margin-left: auto;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-success;
+}
+
 .optionIcon {
   font-size: 48rpx;
   line-height: 1;

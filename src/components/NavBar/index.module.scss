@@ -1,0 +1,57 @@
+@use '@/styles/variables.scss' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 20rpx) $page-padding 20rpx;
+  position: relative;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: $page-padding;
+    right: $page-padding;
+    bottom: 0;
+    height: 1rpx;
+    background: linear-gradient(90deg, transparent, $color-gold-border 30%, $color-gold-border 70%, transparent);
+  }
+}
+
+.backBtn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  border: 1rpx solid $color-gold-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+}
+
+.backIcon {
+  font-size: 44rpx;
+  color: $color-primary;
+  line-height: 1;
+  margin-top: -6rpx;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
+  @include serif-font;
+  @include text-ellipsis;
+}
+
+.placeholder {
+  width: 56rpx;
+  flex-shrink: 0;
+}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
 import { useUserStore } from '@/store/user'
+import NavBar from '@/components/NavBar'
 import { getLeaderboard } from '@/data/leaderboard'
 import { brainScoreTotal } from '@/utils/score'
 import styles from './index.module.scss'
@@ -13,6 +14,7 @@ const LeaderboardPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
+      <NavBar title="排行榜" />
       {/* 我的排名 */}
       <View className={styles.myCard}>
         <Text className={styles.myLabel}>我的脑力值</Text>

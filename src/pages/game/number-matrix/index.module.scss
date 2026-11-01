@@ -195,6 +195,53 @@
   color: $color-text-secondary;
 }
 
+/* 作答闪态：对/错 */
+.btnNoRight {
+  width: 260rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1rpx solid $color-success;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+}
+
+.btnNoWrong {
+  width: 260rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: rgba(230, 69, 69, 0.2);
+  border: 1rpx solid $color-error;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+}
+
+.btnYesRight {
+  width: 260rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+}
+
+.btnYesWrong {
+  width: 260rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, #e64545 0%, #ef5350 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+}
+
 .btnYes {
   width: 260rpx;
   height: $button-height-lg;

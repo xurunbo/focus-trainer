@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
+import NavBar from '@/components/NavBar'
+import ResultOverlay from '@/components/ResultOverlay'
+import { feedback } from '@/utils/feedback'
 import styles from './index.module.scss'
 
 const DURATIONS = [15, 25, 45, 60]
@@ -34,7 +37,7 @@ const FocusPage: React.FC = () => {
       setRunning(false)
       setCompleted(true)
       store.completeFocus(minutes)
-      Taro.vibrateShort({ type: 'heavy' }).catch(() => {})
+      feedback('finish')
       console.log('[Focus] session completed:', minutes, 'min')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,10 +77,10 @@ const FocusPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
-      <Text className={styles.pageTitle}>番茄专注钟</Text>
-
-      {/* 计时器 */}
-      <View className={styles.timerWrap}>
+      <NavBar title="番茄专注钟" />
+      <View className={styles.content}>
+        {/* 计时器 */}
+        <View className={styles.timerWrap}>
         {/* 轨道整环 */}
         <View className={styles.ringTrack} />
         {/* 右半圆进度弧 */}
@@ -146,6 +149,21 @@ const FocusPage: React.FC = () => {
       <Text className={styles.tip}>
         专注不是天生的，是练出来的。{"\n"}放下手机，与自己相处一段时间。
       </Text>
+      </View>
+
+      {/* 完成结算 */}
+      <ResultOverlay
+        visible={completed}
+        score={minutes}
+        scoreUnit="分钟"
+        gradeLabel="专注达成"
+        accuracy={100}
+        durationSec={minutes * 60}
+        exp={minutes}
+        detail={`第 ${store.pomodoroCount} 次专注 · 累计 ${store.focusTotalMin} 分钟`}
+        onRetry={toggleRunning}
+        onHome={() => Taro.navigateBack()}
+      />
     </View>
   )
 }

@@ -6,7 +6,8 @@ import GameShell from '@/components/GameShell'
 import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
-import { expGain } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { feedback } from '@/utils/feedback'
 import { randomInt, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
@@ -37,6 +38,7 @@ const NumberMatrixPage: React.FC = () => {
   const [qIndex, setQIndex] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [lastAnswer, setLastAnswer] = useState<'none' | 'right' | 'wrong'>('none')
+  const [flashBtn, setFlashBtn] = useState<'' | 'yes' | 'no'>('')
   const [score, setScore] = useState(0)
   const [startTime, setStartTime] = useState(0)
 
@@ -68,13 +70,17 @@ const NumberMatrixPage: React.FC = () => {
   }
 
   const answer = (sayAppeared: boolean) => {
+    if (flashBtn) return
     const q = questions[qIndex]
     const right = sayAppeared === q.appeared
+    feedback(right ? 'right' : 'wrong')
     const nextCorrect = right ? correctCount + 1 : correctCount
     setCorrectCount(nextCorrect)
     setLastAnswer(right ? 'right' : 'wrong')
+    setFlashBtn(sayAppeared ? 'yes' : 'no')
     setTimeout(() => {
       setLastAnswer('none')
+      setFlashBtn('')
       if (qIndex + 1 >= questions.length) {
         finish(nextCorrect)
       } else {
@@ -87,6 +93,7 @@ const NumberMatrixPage: React.FC = () => {
     const finalScore = Math.round((finalCorrect / questions.length) * 100)
     const durationSec = Math.max(1, Math.round((Date.now() - startTime) / 1000))
     setScore(finalScore)
+    feedback('finish')
     const before = new Set(store.achievements)
     store.addRecord({
       gameId: 'number-matrix',
@@ -115,7 +122,7 @@ const NumberMatrixPage: React.FC = () => {
   const currentQ = questions[qIndex]
 
   return (
-    <GameShell title={meta.name} stage={stageLabel[stage]}>
+    <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {stage === 'intro' && (
         <View className={styles.intro}>
           <Text className={styles.introIcon}>🔢</Text>
@@ -167,10 +174,28 @@ const NumberMatrixPage: React.FC = () => {
             ))}
           </View>
           <View className={styles.btnRow}>
-            <View className={styles.btnNo} onClick={() => answer(false)}>
+            <View
+              className={
+                flashBtn === 'no'
+                  ? lastAnswer === 'right'
+                    ? styles.btnNoRight
+                    : styles.btnNoWrong
+                  : styles.btnNo
+              }
+              onClick={() => answer(false)}
+            >
               <Text className={styles.btnNoText}>没出现过</Text>
             </View>
-            <View className={styles.btnYes} onClick={() => answer(true)}>
+            <View
+              className={
+                flashBtn === 'yes'
+                  ? lastAnswer === 'right'
+                    ? styles.btnYesRight
+                    : styles.btnYesWrong
+                  : styles.btnYes
+              }
+              onClick={() => answer(true)}
+            >
               <Text className={styles.btnYesText}>出现过</Text>
             </View>
           </View>
@@ -183,7 +208,7 @@ const NumberMatrixPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime) / 1000))}
         exp={expGain(score, difficulty)}
-        detail={`答对 ${correctCount}/${questions.length} 题`}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · 答对 ${correctCount}/${questions.length} 题`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

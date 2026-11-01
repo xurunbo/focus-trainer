@@ -101,9 +101,21 @@
   box-shadow: 0 0 24rpx rgba(76, 175, 80, 0.5);
 }
 
+.ballWrong {
+  background: radial-gradient(circle at 35% 30%, #f5a3a3, #e64545);
+  box-shadow: 0 0 24rpx rgba(230, 69, 69, 0.5);
+}
+
 .ballStar {
   font-size: 36rpx;
   color: #173d1a;
+  line-height: 1;
+}
+
+.ballCross {
+  font-size: 36rpx;
+  color: #4d1010;
+  font-weight: $font-weight-bold;
   line-height: 1;
 }
 

@@ -5,7 +5,8 @@ import { useUserStore, showAchievementToasts } from '@/store/user'
 import GameShell from '@/components/GameShell'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
-import { expGain } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { feedback } from '@/utils/feedback'
 import { shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
@@ -94,6 +95,7 @@ const SchultePage: React.FC = () => {
       finalScore = Math.round((foundCount / TOTAL) * 60)
     }
     setScore(finalScore)
+    feedback('finish')
     const before = new Set(store.achievements)
     store.addRecord({
       gameId: 'schulte',
@@ -115,6 +117,7 @@ const SchultePage: React.FC = () => {
   const tapCell = (num: number) => {
     if (stage !== 'playing') return
     if (num === nextTarget) {
+      feedback('tick')
       const nextFound = foundCount + 1
       setFoundCount(nextFound)
       if (nextFound >= TOTAL) {
@@ -123,6 +126,7 @@ const SchultePage: React.FC = () => {
       }
       setNextTarget(mode === 'asc' ? num + 1 : num - 1)
     } else {
+      feedback('wrong')
       setWrongId(num)
       setTimeout(() => setWrongId(-1), 400)
     }
@@ -135,29 +139,25 @@ const SchultePage: React.FC = () => {
     result: '结算'
   }
 
-  // 答案核对路径（按点击顺序的位置）
-  const orderIndex = numbers.map((n, i) => ({ n, i }))
-    .sort((a, b) => (mode === 'asc' ? a.n - b.n : b.n - a.n))
-    .slice(0, Math.max(1, foundCount))
-
   return (
-    <GameShell title={meta.name} stage={stageLabel[stage]}>
+    <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {stage === 'intro' && (
         <View className={styles.intro}>
           <Text className={styles.introIcon}>🧩</Text>
           <Text className={styles.introTitle}>舒尔特方格</Text>
           <Text className={styles.introText}>
             在方格中按顺序击破数字。{"\n"}
-            这次从二十五开始，倒序规则也要守住。
+            正序从 1 点到 25，倒序从 25 点到 1，{"\n"}
+            选好模式，看准了再点。
           </Text>
           <View className={styles.modeRow}>
-            <View className={styles.modeBtn} onClick={() => beginGame('asc')}>
-              <Text className={styles.modeTitle}>正序挑战</Text>
-              <Text className={styles.modeDesc}>1 → 25</Text>
+            <View className={styles.modeBtnActive} onClick={() => beginGame('asc')}>
+              <Text className={styles.modeTitleActive}>正序挑战</Text>
+              <Text className={styles.modeDescActive}>1 → 25</Text>
             </View>
-            <View className={styles.modeBtnActive} onClick={() => beginGame('desc')}>
-              <Text className={styles.modeTitleActive}>倒序挑战</Text>
-              <Text className={styles.modeDescActive}>25 → 1</Text>
+            <View className={styles.modeBtn} onClick={() => beginGame('desc')}>
+              <Text className={styles.modeTitle}>倒序挑战</Text>
+              <Text className={styles.modeDesc}>25 → 1</Text>
             </View>
           </View>
         </View>
@@ -209,34 +209,13 @@ const SchultePage: React.FC = () => {
         </View>
       )}
 
-      {stage === 'result' && (
-        <View className={styles.resultArea}>
-          <Text className={styles.resultTitle}>时间到</Text>
-          <Text className={styles.resultSub}>你最后找到了 {foundCount} 个</Text>
-          <View className={styles.reviewGrid}>
-            {numbers.map((n, i) => {
-              const rank = orderIndex.findIndex((o) => o.i === i)
-              return (
-                <View
-                  key={n}
-                  className={rank >= 0 ? styles.reviewCellDone : styles.reviewCell}
-                >
-                  <Text className={styles.reviewText}>{n}</Text>
-                  {rank >= 0 ? <Text className={styles.reviewRank}>{rank + 1}</Text> : null}
-                </View>
-              )
-            })}
-          </View>
-        </View>
-      )}
-
       <ResultOverlay
         visible={stage === 'result'}
         score={score}
         accuracy={Math.round((foundCount / TOTAL) * 100)}
         durationSec={usedSec}
         exp={expGain(score, difficulty)}
-        detail={`${mode === 'asc' ? '正序' : '倒序'}找到 ${foundCount}/${TOTAL} 个数字`}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · ${mode === 'asc' ? '正序' : '倒序'}找到 ${foundCount}/${TOTAL} 个数字`}
         onRetry={() => beginGame(mode)}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

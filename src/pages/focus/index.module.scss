@@ -3,19 +3,16 @@
 .container {
   min-height: 100vh;
   background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
-  padding: 24rpx $page-padding 48rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.pageTitle {
-  font-size: $font-size-xxl;
-  font-weight: $font-weight-bold;
-  color: $color-text-gold;
-  margin-bottom: $spacing-lg;
-  letter-spacing: 4rpx;
-  @include serif-font;
+  padding: 24rpx $page-padding 48rpx;
 }
 
 /* 计时器 */

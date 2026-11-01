@@ -7,7 +7,8 @@ import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
 import { MEMORY_ITEMS } from '@/data/items'
-import { expGain } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { feedback } from '@/utils/feedback'
 import { pickSome, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
@@ -41,6 +42,7 @@ const ItemMemoryPage: React.FC = () => {
   const [roundIndex, setRoundIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [startTime, setStartTime] = useState(0)
+  const [pickedName, setPickedName] = useState('')
 
   const buildRounds = (): Round[] => {
     const result: Round[] = []
@@ -69,13 +71,17 @@ const ItemMemoryPage: React.FC = () => {
     setRounds(buildRounds())
     setRoundIndex(0)
     setScore(0)
+    setPickedName('')
     setStartTime(Date.now())
     setStage('memorize')
   }
 
   const answer = (name: string) => {
+    if (pickedName) return
     const round = rounds[roundIndex]
     const right = name === round.missing.name
+    feedback(right ? 'right' : 'wrong')
+    setPickedName(name)
     const newScore = right ? 100 : 0
     setScore((s) => s + newScore)
     const isLast = roundIndex + 1 >= ROUNDS
@@ -84,15 +90,17 @@ const ItemMemoryPage: React.FC = () => {
         finish(score + newScore)
       } else {
         setRoundIndex(roundIndex + 1)
+        setPickedName('')
         setStage('memorize')
       }
-    }, 700)
+    }, 900)
   }
 
   const finish = (totalScore: number) => {
     const finalScore = Math.round(totalScore / ROUNDS)
     const durationSec = Math.max(1, Math.round((Date.now() - startTime) / 1000))
     setScore(finalScore)
+    feedback('finish')
     const before = new Set(store.achievements)
     store.addRecord({
       gameId: 'item-memory',
@@ -127,13 +135,13 @@ const ItemMemoryPage: React.FC = () => {
   }
 
   return (
-    <GameShell title={meta.name} stage={stageLabel[stage]}>
+    <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {stage === 'intro' && (
         <View className={styles.intro}>
           <Text className={styles.introIcon}>⏱️</Text>
           <Text className={styles.introTitle}>八秒物品记忆</Text>
           <Text className={styles.introText}>
-            八秒内，记住画面中的十二件物品。{"\n"}
+            在 {cfg.memorizeSec} 秒内，记住画面中的十二件物品。{"\n"}
             其中一件会消失，说出少了什么。{"\n"}
             看见不等于记住，共 {ROUNDS} 轮。
           </Text>
@@ -175,16 +183,26 @@ const ItemMemoryPage: React.FC = () => {
             </View>
           </View>
           <View className={styles.optionList}>
-            {currentRound.options.map((opt) => (
-              <View
-                key={opt.name}
-                className={styles.optionBtn}
-                onClick={() => answer(opt.name)}
-              >
-                <Text className={styles.optionIcon}>{opt.icon}</Text>
-                <Text className={styles.optionName}>{opt.name}</Text>
-              </View>
-            ))}
+            {currentRound.options.map((opt) => {
+              const isMissing = opt.name === currentRound.missing.name
+              const picked = pickedName === opt.name
+              // 选中后：答对绿色高亮；答错红色高亮并揭示正确项
+              const cls = picked
+                ? isMissing
+                  ? styles.optionBtnRight
+                  : styles.optionBtnWrong
+                : pickedName && isMissing
+                  ? styles.optionBtnRight
+                  : styles.optionBtn
+              return (
+                <View key={opt.name} className={cls} onClick={() => answer(opt.name)}>
+                  <Text className={styles.optionIcon}>{opt.icon}</Text>
+                  <Text className={styles.optionName}>{opt.name}</Text>
+                  {picked && !isMissing ? <Text className={styles.optionMark}>✕</Text> : null}
+                  {isMissing && pickedName ? <Text className={styles.optionMarkRight}>✓</Text> : null}
+                </View>
+              )
+            })}
           </View>
         </View>
       )}
@@ -195,7 +213,7 @@ const ItemMemoryPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime) / 1000))}
         exp={expGain(score, difficulty)}
-        detail={`共 ${ROUNDS} 轮，累计得分 ${score}`}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · 共 ${ROUNDS} 轮，累计得分 ${score}`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

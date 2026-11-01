@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
 import { useUserStore } from '@/store/user'
+import NavBar from '@/components/NavBar'
 import { ACHIEVEMENTS } from '@/data/achievements'
 import styles from './index.module.scss'
 
@@ -10,6 +11,7 @@ const AchievementsPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
+      <NavBar title="成就殿堂" />
       <View className={styles.summary}>
         <Text className={styles.summaryNum}>{unlocked}</Text>
         <Text className={styles.summaryTotal}>/{ACHIEVEMENTS.length}</Text>

@@ -125,6 +125,7 @@ const TrackingPage: React.FC = () => {
   const [balls, setBalls] = useState<Ball[]>([])
   const [observeLeft, setObserveLeft] = useState(cfg.observeSec)
   const [markLeft, setMarkLeft] = useState(MARK_SEC)
+  const [markFade, setMarkFade] = useState(false) // 标记结束后的白光淡出过渡，避免目标球瞬间褪色
   const [speedKey, setSpeedKey] = useState<SpeedKey>('normal')
   const [correctCount, setCorrectCount] = useState(0)
   const [score, setScore] = useState(0)
@@ -210,6 +211,7 @@ const TrackingPage: React.FC = () => {
       setMarkLeft(left)
       if (left <= 0) {
         clearInterval(timer)
+        setMarkFade(true)
         setStage('observe')
       }
     }, 1000)
@@ -219,9 +221,19 @@ const TrackingPage: React.FC = () => {
   // 双保险：标记阶段超时也强制进入观察，避免卡死
   useEffect(() => {
     if (stage !== 'mark') return
-    const t = setTimeout(() => setStage('observe'), MARK_SEC * 1000 + 600)
+    const t = setTimeout(() => {
+      setMarkFade(true)
+      setStage('observe')
+    }, MARK_SEC * 1000 + 600)
     return () => clearTimeout(t)
   }, [stage])
+
+  // 白光淡出约 0.5s 后复位，供下一轮训练使用
+  useEffect(() => {
+    if (!markFade) return
+    const t = setTimeout(() => setMarkFade(false), 500)
+    return () => clearTimeout(t)
+  }, [markFade])
 
   // 观察阶段倒计时：页面自带本地计时器驱动阶段切换（不依赖任何子组件回调，
   // 保证"观察满 observeSec 秒才进入指认"这一核心规则稳定成立）
@@ -353,6 +365,7 @@ const TrackingPage: React.FC = () => {
                 className={[
                   styles.ball,
                   stage === 'mark' && b.isTarget ? styles.ballMark : '',
+                  stage === 'observe' && markFade && b.isTarget ? styles.ballMarkFade : '',
                   stage === 'answer' && b.selected ? styles.ballSelected : '',
                   b.reveal === 'correct' ? styles.ballReveal : '',
                   b.reveal === 'wrong' ? styles.ballWrong : ''
@@ -377,26 +390,29 @@ const TrackingPage: React.FC = () => {
           <View className={styles.controlBar}>
             {(stage === 'mark' || stage === 'observe') && (
               <View className={styles.observeBar}>
-                <View className={styles.countChip}>
-                  <Text className={styles.countNum}>{stage === 'mark' ? markLeft : observeLeft}</Text>
-                  <Text className={styles.countUnit}>秒</Text>
+                {/* key 随阶段变化：阶段切换时倒计时/进度条/文案整体淡入刷新，避免数字与进度硬跳 */}
+                <View className={styles.barSlide} key={stage}>
+                  <View className={styles.countChip}>
+                    <Text className={styles.countNum}>{stage === 'mark' ? markLeft : observeLeft}</Text>
+                    <Text className={styles.countUnit}>秒</Text>
+                  </View>
+                  <View className={styles.countTrack}>
+                    <StyledView
+                      className={styles.countFill}
+                      css={{
+                        width: `${Math.max(
+                          0,
+                          ((stage === 'mark' ? markLeft : observeLeft) /
+                            (stage === 'mark' ? MARK_SEC : cfg.observeSec)) *
+                            100
+                        )}%`
+                      }}
+                    />
+                  </View>
+                  <Text className={styles.tipText}>
+                    {stage === 'mark' ? `记住闪烁的 ${cfg.targets} 颗球！` : '已混入同色球中：盯住它们！'}
+                  </Text>
                 </View>
-                <View className={styles.countTrack}>
-                  <StyledView
-                    className={styles.countFill}
-                    css={{
-                      width: `${Math.max(
-                        0,
-                        ((stage === 'mark' ? markLeft : observeLeft) /
-                          (stage === 'mark' ? MARK_SEC : cfg.observeSec)) *
-                          100
-                      )}%`
-                    }}
-                  />
-                </View>
-                <Text className={styles.tipText}>
-                  {stage === 'mark' ? `记住闪烁的 ${cfg.targets} 颗球！` : '已混入同色球中：盯住它们！'}
-                </Text>
               </View>
             )}
             {stage === 'answer' && (

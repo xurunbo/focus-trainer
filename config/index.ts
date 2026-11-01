@@ -23,9 +23,11 @@ export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
       BUILD_TIME: JSON.stringify(new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 16))
     },
     copy: {
-      // 训练背景音乐《若如初见（开智小曲）》：拷贝到 static/audio/ 供线上播放
+      // 训练背景音乐《若如初见（开智小曲）》：
+      // Taro 的 copy 规则中 from 相对项目根目录，to 会拼到项目根下，
+      // 因此写成 dist/static/audio/bgm.mp3 才能落到构建产物 dist 里并随部署发布
       patterns: [
-        { from: 'assets/audio/bgm.mp3', to: 'static/audio/bgm.mp3', noErrorOnMissing: true }
+        { from: 'src/assets/audio/bgm.mp3', to: 'dist/static/audio/bgm.mp3', noErrorOnMissing: true }
       ],
       options: {},
     },

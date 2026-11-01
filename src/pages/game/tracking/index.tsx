@@ -289,7 +289,7 @@ const TrackingPage: React.FC = () => {
       accuracy: finalScore,
       durationSec,
       difficulty,
-      detail: `命中 ${correct}/${cfg.targets} 个金色目标球`
+      detail: `命中 ${correct}/${cfg.targets} 个同色目标球`
     })
     const unlocked = useUserStore.getState().achievements.filter((a) => !before.has(a))
     if (unlocked.length) {

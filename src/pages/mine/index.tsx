@@ -6,6 +6,7 @@ import StyledView from '@/components/StyledView'
 import { brainScoreTotal, EXP_PER_LEVEL, titleFromLevel } from '@/utils/score'
 import { ACHIEVEMENTS } from '@/data/achievements'
 import PageHeader from '@/components/PageHeader'
+import PlatformCard from '@/components/PlatformCard'
 import styles from './index.module.scss'
 
 const MinePage: React.FC = () => {
@@ -62,6 +63,9 @@ const MinePage: React.FC = () => {
           <Text className={styles.statLabel}>专注次数</Text>
         </View>
       </View>
+
+      {/* 平台数据：在线人数 / 今日活跃 / 累计使用（未配置时自动隐藏） */}
+      <PlatformCard />
 
       {/* 功能入口 */}
       <View className={styles.menuCard}>

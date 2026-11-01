@@ -6,6 +6,7 @@ import StyledView from '@/components/StyledView'
 import { GAMES } from '@/data/games'
 import { generateDailyPlan } from '@/data/plan'
 import { brainScoreTotal, EXP_PER_LEVEL } from '@/utils/score'
+import PlatformStrip from '@/components/PlatformStrip'
 import styles from './index.module.scss'
 
 const HomePage: React.FC = () => {
@@ -43,6 +44,9 @@ const HomePage: React.FC = () => {
           <Text className={styles.expText}>{expInLevel}/{EXP_PER_LEVEL}</Text>
         </View>
       </View>
+
+      {/* 实时人气条：当前在线 / 今日活跃 / 累计使用 */}
+      <PlatformStrip />
 
       {/* 总脑力值 */}
       <View className={styles.brainCard}>

@@ -29,7 +29,6 @@ export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
         {
           from: 'src/assets/audio/bgm.mp3',
           to: 'dist/static/audio/bgm.mp3',
-          noErrorOnMissing: true,
         },
       ],
       options: {},

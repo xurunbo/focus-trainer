@@ -28,13 +28,16 @@ const BOX_H = 500 // rpx，场地高
 const BALL_SIZE = 64 // rpx，球直径
 const EDGE = 6 // 距场地边缘最小距离
 
-// 经典多目标追踪规则：全部球自由移动并相互碰撞，其中 targets 颗金色目标球
-// 需要全程盯住；观察期结束全场定格并从 1 开始编号，凭记忆点出目标球
+// 经典多目标追踪（MOT）规则：全部球同色；先闪烁标记 targets 颗目标球供记忆，
+// 随后全场同色自由移动并相互碰撞；观察期结束定格并从 1 开始编号，凭记忆点出目标球
 const LEVEL_CONFIG: Record<Difficulty, { balls: number; targets: number; observeSec: number; speed: number }> = {
   easy: { balls: 10, targets: 3, observeSec: 5, speed: 85 },
   medium: { balls: 12, targets: 4, observeSec: 4, speed: 110 },
   hard: { balls: 15, targets: 5, observeSec: 3, speed: 140 }
 }
+
+// 标记阶段时长：目标球闪烁展示，供玩家记住（秒）
+const MARK_SEC = 2
 
 // 移动速度档位：用户可自行调节
 const SPEED_OPTIONS = [
@@ -86,7 +89,7 @@ function resolveCollisions(balls: Ball[]): Ball[] {
   return next
 }
 
-type Stage = 'intro' | 'observe' | 'answer' | 'result'
+type Stage = 'intro' | 'mark' | 'observe' | 'answer' | 'result'
 
 // 随机摆放球体，尽量互不重叠（拒绝采样）
 function placeBalls(count: number): { x: number; y: number }[] {
@@ -121,6 +124,7 @@ const TrackingPage: React.FC = () => {
   const [stage, setStage] = useState<Stage>('intro')
   const [balls, setBalls] = useState<Ball[]>([])
   const [observeLeft, setObserveLeft] = useState(cfg.observeSec)
+  const [markLeft, setMarkLeft] = useState(MARK_SEC)
   const [speedKey, setSpeedKey] = useState<SpeedKey>('normal')
   const [correctCount, setCorrectCount] = useState(0)
   const [score, setScore] = useState(0)
@@ -150,8 +154,9 @@ const TrackingPage: React.FC = () => {
     setCorrectCount(0)
     setScore(0)
     setObserveLeft(cfg.observeSec)
+    setMarkLeft(MARK_SEC)
     startTime.current = Date.now()
-    setStage('observe')
+    setStage('mark')
   }
 
   // 观察阶段：requestAnimationFrame 驱动全部球移动，碰壁反弹 + 球球弹性碰撞
@@ -192,6 +197,30 @@ const TrackingPage: React.FC = () => {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
+  }, [stage])
+
+  // 标记阶段倒计时：目标球闪烁展示 MARK_SEC 秒后进入观察（本地计时器驱动，
+  // 不依赖子组件回调，保证标记时间稳定成立）
+  useEffect(() => {
+    if (stage !== 'mark') return
+    setMarkLeft(MARK_SEC)
+    let left = MARK_SEC
+    const timer = setInterval(() => {
+      left -= 1
+      setMarkLeft(left)
+      if (left <= 0) {
+        clearInterval(timer)
+        setStage('observe')
+      }
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [stage])
+
+  // 双保险：标记阶段超时也强制进入观察，避免卡死
+  useEffect(() => {
+    if (stage !== 'mark') return
+    const t = setTimeout(() => setStage('observe'), MARK_SEC * 1000 + 600)
+    return () => clearTimeout(t)
   }, [stage])
 
   // 观察阶段倒计时：页面自带本地计时器驱动阶段切换（不依赖任何子组件回调，
@@ -271,6 +300,7 @@ const TrackingPage: React.FC = () => {
 
   const stageLabel: Record<Stage, string> = {
     intro: '准备',
+    mark: '标记',
     observe: '观察中',
     answer: '指认',
     result: '结算'
@@ -284,10 +314,10 @@ const TrackingPage: React.FC = () => {
           <Text className={styles.introIcon}>👀</Text>
           <Text className={styles.introTitle}>多目标追踪</Text>
           <Text className={styles.introText}>
-            {DIFFICULTY_LABEL[difficulty]}模式：{cfg.balls} 颗球全部自由移动，{"\n"}
-            相互碰撞，其中 {cfg.targets} 颗是金色目标球。{"\n"}
-            请在 {cfg.observeSec} 秒内始终盯住金色球，{"\n"}
-            时间一到全场定格并编号，凭记忆点出它们。
+            {DIFFICULTY_LABEL[difficulty]}模式：{cfg.balls} 颗球颜色完全相同，{"\n"}
+            先闪烁标记 {cfg.targets} 颗目标球，请记住它们；{"\n"}
+            随后全部同色自由移动、相互碰撞，{"\n"}
+            {cfg.observeSec} 秒后全场定格并编号，凭记忆点出那 {cfg.targets} 颗。
           </Text>
           <View className={styles.speedRow}>
             <Text className={styles.speedLabel}>移动速度</Text>
@@ -322,7 +352,7 @@ const TrackingPage: React.FC = () => {
                 key={b.id}
                 className={[
                   styles.ball,
-                  b.isTarget ? styles.ballTarget : '',
+                  stage === 'mark' && b.isTarget ? styles.ballMark : '',
                   stage === 'answer' && b.selected ? styles.ballSelected : '',
                   b.reveal === 'correct' ? styles.ballReveal : '',
                   b.reveal === 'wrong' ? styles.ballWrong : ''
@@ -336,28 +366,37 @@ const TrackingPage: React.FC = () => {
               >
                 {b.reveal === 'correct' ? <Text className={styles.ballStar}>★</Text> : null}
                 {b.reveal === 'wrong' ? <Text className={styles.ballCross}>✕</Text> : null}
-                {/* 观察结束全场定格后，从 1 开始为每颗球编号 */}
-                {stage !== 'observe' && b.reveal === 'none' ? (
-                  <Text className={[styles.ballNum, b.isTarget ? styles.ballNumTarget : ''].join(' ')}>{b.id + 1}</Text>
+                {/* 定格后每颗球从 1 开始显示编号 */}
+                {(stage === 'answer' || stage === 'result') && b.reveal === 'none' ? (
+                  <Text className={styles.ballNum}>{b.id + 1}</Text>
                 ) : null}
               </StyledView>
             ))}
           </View>
 
           <View className={styles.controlBar}>
-            {stage === 'observe' && (
+            {(stage === 'mark' || stage === 'observe') && (
               <View className={styles.observeBar}>
                 <View className={styles.countChip}>
-                  <Text className={styles.countNum}>{observeLeft}</Text>
+                  <Text className={styles.countNum}>{stage === 'mark' ? markLeft : observeLeft}</Text>
                   <Text className={styles.countUnit}>秒</Text>
                 </View>
                 <View className={styles.countTrack}>
                   <StyledView
                     className={styles.countFill}
-                    css={{ width: `${Math.max(0, (observeLeft / cfg.observeSec) * 100)}%` }}
+                    css={{
+                      width: `${Math.max(
+                        0,
+                        ((stage === 'mark' ? markLeft : observeLeft) /
+                          (stage === 'mark' ? MARK_SEC : cfg.observeSec)) *
+                          100
+                      )}%`
+                    }}
                   />
                 </View>
-                <Text className={styles.tipText}>全场移动中：盯住 {cfg.targets} 颗金色球！</Text>
+                <Text className={styles.tipText}>
+                  {stage === 'mark' ? `记住闪烁的 ${cfg.targets} 颗球！` : '已混入同色球中：盯住它们！'}
+                </Text>
               </View>
             )}
             {stage === 'answer' && (
@@ -377,7 +416,7 @@ const TrackingPage: React.FC = () => {
               </View>
             )}
             {stage === 'answer' && (
-              <Text className={styles.answerHint}>全场已定格：刚才盯住的金色球是几号？点选它们（可取消重选）</Text>
+              <Text className={styles.answerHint}>全场已定格：刚才记住的是几号？点选它们（可取消重选）</Text>
             )}
           </View>
         </View>

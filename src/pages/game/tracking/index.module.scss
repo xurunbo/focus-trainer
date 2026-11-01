@@ -91,11 +91,21 @@
   justify-content: center;
 }
 
-/* 金色目标球：全场移动中醒目，便于全程盯住 */
-.ballTarget {
-  background: radial-gradient(circle at 35% 30%, #f7dc8a, #b8912f);
-  border: 2rpx solid rgba(255, 232, 160, 0.95);
-  box-shadow: 0 0 20rpx rgba(212, 175, 55, 0.6);
+/* 标记阶段：目标球白色脉冲光圈提示（标记结束后与普通球完全同色） */
+.ballMark {
+  animation: ballMarkPulse 0.7s ease-in-out infinite;
+}
+
+@keyframes ballMarkPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 12rpx rgba(255, 255, 255, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30rpx rgba(255, 255, 255, 0.95);
+    transform: scale(1.12);
+  }
 }
 
 /* 定格编号：观察结束后每颗球中央显示 1..N */
@@ -106,10 +116,6 @@
   line-height: 1;
   @include nums;
   pointer-events: none;
-}
-
-.ballNumTarget {
-  color: #3a2a08;
 }
 
 /* 移动速度档位选择 */

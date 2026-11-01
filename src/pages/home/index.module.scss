@@ -1,0 +1,363 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+}
+
+/* 顶部用户卡片 */
+.hero {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.14) 0%, rgba(34, 26, 14, 0.9) 60%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 0 40rpx rgba(212, 175, 55, 0.12);
+}
+
+.heroTop {
+  display: flex;
+  align-items: center;
+}
+
+.avatarWrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  background: $color-bg-inset;
+  border: 2rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20rpx $color-gold-glow;
+}
+
+.avatar {
+  font-size: 52rpx;
+  line-height: 1;
+}
+
+.heroInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.nickname {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+}
+
+.levelText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.streakBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  border-radius: $radius-md;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1rpx solid $color-gold-border;
+}
+
+.streakNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: $line-height-tight;
+  @include nums;
+}
+
+.streakLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.expRow {
+  display: flex;
+  align-items: center;
+  margin-top: $spacing-md;
+  gap: $spacing-sm;
+}
+
+.expTrack {
+  flex: 1;
+  height: 12rpx;
+  border-radius: $radius-round;
+  background: $color-bg-inset;
+  overflow: hidden;
+}
+
+.expFill {
+  height: 100%;
+  border-radius: $radius-round;
+  background: linear-gradient(90deg, $color-primary-dark, $color-primary-light);
+  transition: width $transition-slow;
+}
+
+.expText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  @include nums;
+}
+
+/* 脑力值卡片 */
+.brainCard {
+  display: flex;
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 0 40rpx rgba(212, 175, 55, 0.12);
+}
+
+.brainLeft {
+  width: 240rpx;
+  border-right: 1rpx solid $color-divider;
+  padding-right: $spacing-md;
+}
+
+.brainLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.brainNumRow {
+  display: flex;
+  align-items: baseline;
+  margin-top: 8rpx;
+}
+
+.brainNum {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: $line-height-tight;
+  @include serif-font;
+  @include nums;
+}
+
+.brainUnit {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-left: 8rpx;
+}
+
+.brainHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 12rpx;
+  line-height: $line-height-normal;
+}
+
+.brainRight {
+  flex: 1;
+  padding-left: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: $spacing-md;
+}
+
+.miniRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.miniName {
+  width: 56rpx;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.miniTrack {
+  flex: 1;
+  height: 12rpx;
+  border-radius: $radius-round;
+  background: $color-bg-inset;
+  overflow: hidden;
+}
+
+.miniFill {
+  height: 100%;
+  border-radius: $radius-round;
+}
+
+.miniVal {
+  width: 48rpx;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
+  text-align: right;
+  @include nums;
+}
+
+/* 区块 */
+.section {
+  margin-bottom: $spacing-md;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include serif-font;
+}
+
+.sectionTitle::before {
+  content: '';
+  display: inline-block;
+  width: 8rpx;
+  height: 28rpx;
+  border-radius: 4rpx;
+  background: $color-primary;
+  margin-right: $spacing-sm;
+  vertical-align: -4rpx;
+}
+
+.sectionExtra {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+/* 今日计划 */
+.planCard {
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-xs 0;
+}
+
+.planItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-lg;
+  transition: opacity $transition-fast;
+
+  &:active {
+    opacity: 0.75;
+  }
+}
+
+.planIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-md;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.planIconDone {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-md;
+  background: rgba(212, 175, 55, 0.16);
+  border: 1rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.planIconText {
+  font-size: 34rpx;
+  line-height: 1;
+}
+
+.planInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.planName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  display: block;
+}
+
+.planReason {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.planArrow {
+  font-size: 36rpx;
+  color: $color-text-tertiary;
+}
+
+/* 训练入口网格 */
+.gameGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.gameCard {
+  width: calc((100% - 32rpx) / 3);
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-xs;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all $transition-fast;
+
+  &:active {
+    border-color: $color-primary;
+    transform: scale(0.97);
+  }
+}
+
+.gameIcon {
+  font-size: 52rpx;
+  line-height: 1;
+}
+
+.gameName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  margin-top: $spacing-sm;
+  text-align: center;
+}
+
+.gameDim {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 6rpx;
+}
+
+/* 底部语录 */
+.footer {
+  margin-top: $spacing-lg;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.footerText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  letter-spacing: 4rpx;
+}

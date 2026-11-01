@@ -1,0 +1,218 @@
+@use '@/styles/variables.scss' as *;
+
+/* 介绍页 */
+.intro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.introIcon {
+  font-size: 120rpx;
+  line-height: 1;
+  filter: drop-shadow(0 0 24rpx $color-gold-glow);
+}
+
+.introTitle {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  margin-top: $spacing-lg;
+  letter-spacing: 6rpx;
+  @include serif-font;
+}
+
+.introText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  text-align: center;
+  margin-top: $spacing-lg;
+  white-space: pre-line;
+}
+
+.startBtn {
+  width: 480rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-xl;
+  box-shadow: 0 0 32rpx $color-gold-glow;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.startBtnText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+  letter-spacing: 8rpx;
+}
+
+/* 记忆阶段 */
+.memorizeArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: $spacing-sm;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  width: 100%;
+  margin-top: $spacing-md;
+}
+
+.cell {
+  width: calc((100% - 50rpx) / 6);
+  aspect-ratio: 1.5;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cellText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-gold;
+}
+
+.memorizeTip {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-md;
+  letter-spacing: 4rpx;
+}
+
+/* 答题阶段 */
+.questionArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.questionTip {
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xl;
+}
+
+.numberBox {
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: $radius-lg;
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 2rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 48rpx $color-gold-glow;
+  margin-bottom: $spacing-xl;
+}
+
+.numberText {
+  font-size: 120rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: 1;
+}
+
+.progressDots {
+  display: flex;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-xl;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-divider;
+}
+
+.dotCurrent {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+}
+
+.dotRight {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-success;
+}
+
+.dotWrong {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-error;
+}
+
+.btnRow {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btnNo {
+  width: 260rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+.btnNoText {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+}
+
+.btnYes {
+  width: 260rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24rpx $color-gold-glow;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.btnYesText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+}

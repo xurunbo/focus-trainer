@@ -1,0 +1,248 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pageTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  margin-bottom: $spacing-lg;
+  letter-spacing: 4rpx;
+  @include serif-font;
+}
+
+/* 计时器 */
+.timerWrap {
+  width: 560rpx;
+  height: 560rpx;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-xl;
+}
+
+/* 轨道整环 */
+.ringTrack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 16rpx solid rgba(212, 175, 55, 0.12);
+  box-sizing: border-box;
+}
+
+/* 左右半圆遮罩 */
+.maskLeft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.maskRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 进度弧：与环等大的整圆，仅一侧描边，旋转后划入可见区域 */
+.ringArc {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  border-radius: 50%;
+  border: 16rpx solid transparent;
+  box-sizing: border-box;
+  transition: transform 1s linear;
+}
+
+.ringArcRight {
+  border-left-color: $color-primary;
+}
+
+.ringArcLeft {
+  border-right-color: $color-primary;
+}
+
+.timerCenter {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timeText {
+  font-size: 88rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.doneText {
+  font-size: 64rpx;
+  font-weight: $font-weight-bold;
+  color: $color-success;
+  line-height: 1;
+}
+
+.stateText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+  letter-spacing: 4rpx;
+}
+
+/* 时长选择 */
+.durRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.durItem {
+  width: 140rpx;
+  height: 64rpx;
+  border-radius: $radius-button;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.durItemActive {
+  width: 140rpx;
+  height: 64rpx;
+  border-radius: $radius-button;
+  background: rgba(212, 175, 55, 0.16);
+  border: 1rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16rpx $color-gold-glow;
+}
+
+.durText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.durTextActive {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-gold;
+}
+
+/* 按钮 */
+.btnRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+}
+
+.btnSecondary {
+  width: 200rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+.btnSecondaryText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.btnPrimary {
+  width: 320rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 32rpx $color-gold-glow;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.btnPrimaryText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+  letter-spacing: 4rpx;
+}
+
+/* 统计 */
+.statsCard {
+  display: flex;
+  width: 100%;
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg 0;
+  margin-bottom: $spacing-lg;
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.statNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  @include nums;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.tip {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: center;
+  line-height: $line-height-loose;
+  white-space: pre-line;
+}

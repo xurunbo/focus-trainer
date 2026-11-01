@@ -1,0 +1,186 @@
+@use '@/styles/variables.scss' as *;
+
+/* 介绍页 */
+.intro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.introIcon {
+  font-size: 120rpx;
+  line-height: 1;
+  filter: drop-shadow(0 0 24rpx $color-gold-glow);
+}
+
+.introTitle {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  margin-top: $spacing-lg;
+  letter-spacing: 6rpx;
+  @include serif-font;
+}
+
+.introText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  text-align: center;
+  margin-top: $spacing-lg;
+  white-space: pre-line;
+}
+
+.startBtn {
+  width: 480rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-xl;
+  box-shadow: 0 0 32rpx $color-gold-glow;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.startBtnText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+  letter-spacing: 8rpx;
+}
+
+/* 记忆阶段 */
+.memorizeArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.itemGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  width: 100%;
+  margin-top: $spacing-md;
+}
+
+.itemCell {
+  width: calc((100% - 48rpx) / 4);
+  aspect-ratio: 1;
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.itemCellDim {
+  width: calc((100% - 48rpx) / 4);
+  aspect-ratio: 1;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  opacity: 0.85;
+}
+
+.itemIcon {
+  font-size: 52rpx;
+  line-height: 1;
+}
+
+.itemName {
+  font-size: 20rpx;
+  color: $color-text-secondary;
+}
+
+.memorizeTip {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-md;
+  letter-spacing: 4rpx;
+}
+
+/* 作答阶段 */
+.answerArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.answerTip {
+  font-size: $font-size-lg;
+  color: $color-text-gold;
+  margin-bottom: $spacing-sm;
+}
+
+.ghostCell {
+  width: calc((100% - 48rpx) / 4);
+  aspect-ratio: 1;
+  background: rgba(212, 175, 55, 0.08);
+  border: 2rpx dashed $color-primary;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ghostText {
+  font-size: 64rpx;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+  margin-top: $spacing-md;
+}
+
+.optionBtn {
+  display: flex;
+  align-items: center;
+  height: 96rpx;
+  background: $color-bg-card;
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-md;
+  padding: 0 $spacing-lg;
+  transition: all $transition-fast;
+
+  &:active {
+    border-color: $color-primary;
+    background: rgba(212, 175, 55, 0.12);
+    transform: scale(0.98);
+  }
+}
+
+.optionIcon {
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.optionName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  margin-left: $spacing-md;
+}

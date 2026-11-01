@@ -1,0 +1,44 @@
+// ============================================
+// 主题配色变量（暗金雅致风格）
+// ============================================
+
+// 品牌主题色：鎏金
+$color-primary: #d4af37;
+$color-primary-light: #f0d98c;
+$color-primary-dark: #9a7b1e;
+
+// 功能色
+$color-success: #4caf50;
+$color-warning: #ffb300;
+$color-error: #e64545;
+$color-info: #d4af37;
+
+// 背景色
+$color-bg-page: #17120a;
+$color-bg-card: #221a0e;
+$color-bg-hover: #2b2113;
+
+// 文本色
+$color-text-primary: #f5ecd7;
+$color-text-secondary: #b3a37e;
+$color-text-tertiary: #7d6f4f;
+$color-text-disabled: #52483a;
+$color-text-white: #ffffff;
+
+// 边框色
+$color-border: #3a2f1c;
+$color-divider: #2b2113;
+
+// ============================================
+// 业务相关变量（暗金主题）
+// ============================================
+// 深层背景（页面顶部渐变）
+$color-bg-deep: #0f0b05;
+// 鎏金文本（高亮标题）
+$color-text-gold: #f5d76e;
+// 金色半透明边框（卡片描边）
+$color-gold-border: rgba(212, 175, 55, 0.28);
+// 金色发光阴影
+$color-gold-glow: rgba(212, 175, 55, 0.35);
+// 卡片内嵌浅色块
+$color-bg-inset: #1a1409;

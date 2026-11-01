@@ -1,0 +1,132 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+}
+
+.card {
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.cardTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+  @include serif-font;
+}
+
+.cardHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rowInfo {
+  flex: 1;
+}
+
+.rowName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  display: block;
+}
+
+.rowDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+/* 每日目标 */
+.goalRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.goalItem {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+.goalItemActive {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: rgba(212, 175, 55, 0.16);
+  border: 1rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.goalText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.goalTextActive {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-gold;
+}
+
+/* 危险操作 */
+.dangerBtn {
+  height: $button-height-md;
+  border-radius: $radius-button;
+  border: 1rpx solid rgba(230, 69, 69, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    background: rgba(230, 69, 69, 0.12);
+    transform: scale(0.98);
+  }
+}
+
+.dangerText {
+  font-size: $font-size-md;
+  color: $color-error;
+}
+
+.version {
+  font-size: $font-size-xs;
+  color: $color-text-disabled;
+  text-align: center;
+  margin-top: $spacing-lg;
+}

@@ -1,0 +1,175 @@
+@use '@/styles/variables.scss' as *;
+
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 2, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 0 $page-padding;
+  animation: overlay-fade-in 0.25s ease;
+}
+
+.panel {
+  width: 100%;
+  max-width: 600rpx;
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: 56rpx 40rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 0 60rpx $color-gold-glow;
+  animation: overlay-pop-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes overlay-pop-in {
+  from { opacity: 0; transform: scale(0.9) translateY(24rpx); }
+}
+
+.decoTop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160rpx;
+  height: 6rpx;
+  border-radius: 0 0 $radius-xs $radius-xs;
+  background: linear-gradient(90deg, transparent, $color-primary, transparent);
+}
+
+.finish {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  letter-spacing: 8rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.grade {
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-md;
+  @include serif-font;
+  letter-spacing: 4rpx;
+}
+
+.scoreBox {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: $spacing-lg;
+}
+
+.scoreNum {
+  font-size: 96rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: $line-height-tight;
+  @include serif-font;
+  @include nums;
+}
+
+.scoreUnit {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-left: $spacing-xs;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: $spacing-md 0;
+  border-top: 1rpx solid $color-divider;
+  border-bottom: 1rpx solid $color-divider;
+  margin-bottom: $spacing-md;
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.statValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include nums;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.statDivider {
+  width: 1rpx;
+  height: 40rpx;
+  background: $color-border;
+}
+
+.detail {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+}
+
+.btnRow {
+  display: flex;
+  gap: $spacing-md;
+  width: 100%;
+}
+
+.btnSecondary {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  border: 1rpx solid $color-gold-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+.btnSecondaryText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.btnPrimary {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnPrimaryText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: #1c150c;
+}

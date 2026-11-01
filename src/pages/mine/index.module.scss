@@ -1,0 +1,191 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+}
+
+/* 用户信息 */
+.profileCard {
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 0 40rpx rgba(212, 175, 55, 0.12);
+}
+
+.avatarWrap {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: $radius-round;
+  background: $color-bg-inset;
+  border: 3rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 32rpx $color-gold-glow;
+}
+
+.avatar {
+  font-size: 76rpx;
+  line-height: 1;
+}
+
+.nickname {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-top: $spacing-md;
+}
+
+.titleBadge {
+  margin-top: $spacing-sm;
+  padding: 8rpx 24rpx;
+  border-radius: $radius-round;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1rpx solid $color-gold-border;
+}
+
+.titleText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.expRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: $spacing-lg;
+  gap: $spacing-sm;
+}
+
+.expTrack {
+  flex: 1;
+  height: 12rpx;
+  border-radius: $radius-round;
+  background: $color-bg-inset;
+  overflow: hidden;
+}
+
+.expFill {
+  height: 100%;
+  border-radius: $radius-round;
+  background: linear-gradient(90deg, $color-primary-dark, $color-primary-light);
+  transition: width $transition-slow;
+}
+
+.expText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+/* 数据概览 */
+.statsRow {
+  display: flex;
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg 0;
+  margin-bottom: $spacing-md;
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.statNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  @include serif-font;
+  @include nums;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+/* 菜单 */
+.menuCard {
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-xs 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  transition: opacity $transition-fast;
+
+  &:active {
+    opacity: 0.75;
+  }
+}
+
+.menuIcon {
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.menuInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.menuName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  display: block;
+}
+
+.menuDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.menuArrow {
+  font-size: 36rpx;
+  color: $color-text-tertiary;
+}
+
+/* 关于 */
+.about {
+  margin-top: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.aboutTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  letter-spacing: 4rpx;
+  @include serif-font;
+}
+
+.aboutText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.aboutVer {
+  font-size: $font-size-xs;
+  color: $color-text-disabled;
+  margin-top: $spacing-xs;
+}

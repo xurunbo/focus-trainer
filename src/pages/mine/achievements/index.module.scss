@@ -1,0 +1,126 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+}
+
+.summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding: $spacing-lg 0 $spacing-xl;
+}
+
+.summaryNum {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: 1;
+  @include serif-font;
+  @include nums;
+}
+
+.summaryTotal {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+  margin-left: 8rpx;
+  @include nums;
+}
+
+.summaryLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-left: $spacing-md;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  opacity: 0.65;
+}
+
+.cardGot {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, $color-bg-card 70%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+}
+
+.iconWrap {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-md;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: grayscale(1);
+}
+
+.iconWrapGot {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-md;
+  background: rgba(212, 175, 55, 0.14);
+  border: 1rpx solid $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16rpx $color-gold-glow;
+}
+
+.iconText {
+  font-size: 46rpx;
+  line-height: 1;
+}
+
+.info {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.name {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.nameGot {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
+  display: block;
+}
+
+.desc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 6rpx;
+  display: block;
+}
+
+.status {
+  font-size: $font-size-xs;
+  color: $color-text-disabled;
+}
+
+.statusGot {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}

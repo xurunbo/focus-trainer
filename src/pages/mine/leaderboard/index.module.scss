@@ -1,0 +1,138 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+}
+
+/* 我的排名卡片 */
+.myCard {
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 0 40rpx rgba(212, 175, 55, 0.12);
+}
+
+.myLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.myScore {
+  font-size: 88rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  line-height: $line-height-tight;
+  margin-top: 8rpx;
+  @include serif-font;
+  @include nums;
+}
+
+.myRankBadge {
+  margin-top: $spacing-sm;
+  padding: 8rpx 28rpx;
+  border-radius: $radius-round;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1rpx solid $color-gold-border;
+}
+
+.myRankText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.myHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-md;
+}
+
+/* 榜单 */
+.list {
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-xs 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rowMe {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-lg;
+  background: rgba(212, 175, 55, 0.1);
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rank {
+  width: 64rpx;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-tertiary;
+  text-align: center;
+  @include nums;
+}
+
+.rankTop {
+  width: 64rpx;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  text-align: center;
+  @include nums;
+}
+
+.avatar {
+  font-size: 44rpx;
+  line-height: 1;
+  margin: 0 $spacing-md;
+}
+
+.nickname {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.nicknameMe {
+  flex: 1;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
+  @include text-ellipsis;
+}
+
+.score {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
+  @include nums;
+}
+
+.footerTip {
+  font-size: $font-size-xs;
+  color: $color-text-disabled;
+  text-align: center;
+  margin-top: $spacing-lg;
+}

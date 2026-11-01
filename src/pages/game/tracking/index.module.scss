@@ -1,0 +1,165 @@
+@use '@/styles/variables.scss' as *;
+
+/* 介绍页 */
+.intro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.introIcon {
+  font-size: 120rpx;
+  line-height: 1;
+  filter: drop-shadow(0 0 24rpx $color-gold-glow);
+}
+
+.introTitle {
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  margin-top: $spacing-lg;
+  letter-spacing: 8rpx;
+  @include serif-font;
+}
+
+.introText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  text-align: center;
+  margin-top: $spacing-lg;
+  white-space: pre-line;
+}
+
+.startBtn {
+  width: 480rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-xl;
+  box-shadow: 0 0 32rpx $color-gold-glow;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.startBtnText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+  letter-spacing: 8rpx;
+}
+
+/* 游戏区 */
+.gameArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.box {
+  width: 100%;
+  height: 640rpx;
+  background: $color-bg-inset;
+  border: 2rpx solid $color-gold-border;
+  border-radius: $radius-md;
+  position: relative;
+  overflow: hidden;
+}
+
+.ball {
+  position: absolute;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  background: radial-gradient(circle at 35% 30%, #6b5a38, #3a2f1c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ballTarget {
+  background: radial-gradient(circle at 35% 30%, #ffe9a8, #d4af37);
+  box-shadow: 0 0 24rpx $color-gold-glow, 0 0 8rpx #f5d76e;
+}
+
+.ballSelected {
+  border: 4rpx solid $color-primary-light;
+  box-shadow: 0 0 20rpx $color-gold-glow;
+}
+
+.ballReveal {
+  background: radial-gradient(circle at 35% 30%, #a8f0b5, #4caf50);
+  box-shadow: 0 0 24rpx rgba(76, 175, 80, 0.5);
+}
+
+.ballStar {
+  font-size: 36rpx;
+  color: #173d1a;
+  line-height: 1;
+}
+
+/* 控制栏 */
+.controlBar {
+  min-height: 120rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-md;
+}
+
+.tipCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-lg;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-round;
+}
+
+.tipText {
+  font-size: $font-size-md;
+  color: $color-text-gold;
+}
+
+.answerBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.answerTip {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  @include nums;
+}
+
+.submitBtn {
+  height: $button-height-md;
+  padding: 0 48rpx;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.submitBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: #1c150c;
+}

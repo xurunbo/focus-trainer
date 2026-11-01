@@ -1,0 +1,188 @@
+@use '@/styles/variables.scss' as *;
+
+/* 介绍页 */
+.intro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.introIcon {
+  font-size: 120rpx;
+  line-height: 1;
+  filter: drop-shadow(0 0 24rpx $color-gold-glow);
+}
+
+.introTitle {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  margin-top: $spacing-lg;
+  letter-spacing: 6rpx;
+  @include serif-font;
+}
+
+.introText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  text-align: center;
+  margin-top: $spacing-lg;
+  white-space: pre-line;
+}
+
+.startBtn {
+  width: 480rpx;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-xl;
+  box-shadow: 0 0 32rpx $color-gold-glow;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.startBtnText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+  letter-spacing: 8rpx;
+}
+
+/* 记忆阶段 */
+.memorizeArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tip {
+  font-size: $font-size-md;
+  color: $color-text-gold;
+  margin-top: $spacing-sm;
+  letter-spacing: 2rpx;
+}
+
+/* 作答阶段 */
+.answerArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.answerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: $spacing-sm;
+}
+
+.answerTip {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.timerChip {
+  display: flex;
+  align-items: baseline;
+  padding: 6rpx 20rpx;
+  border-radius: $radius-round;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1rpx solid $color-gold-border;
+}
+
+.timerNum {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  @include nums;
+}
+
+.timerUnit {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: 4rpx;
+}
+
+/* 网格 */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  width: 100%;
+}
+
+.cell {
+  aspect-ratio: 1;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.cellMarked {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1rpx solid $color-primary;
+}
+
+.cellRight {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1rpx solid $color-success;
+}
+
+.cellWrong {
+  background: rgba(230, 69, 69, 0.2);
+  border: 1rpx solid $color-error;
+}
+
+.cellText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.cellMarked .cellText {
+  color: $color-text-gold;
+  font-weight: $font-weight-semibold;
+}
+
+.markRing {
+  position: absolute;
+  inset: 8%;
+  border: 3rpx solid $color-primary;
+  border-radius: $radius-round;
+  box-shadow: 0 0 16rpx $color-gold-glow;
+}
+
+.pickedTag {
+  position: absolute;
+  font-size: $font-size-md;
+  color: $color-error;
+  font-weight: $font-weight-bold;
+}
+
+.pickedRightTag {
+  position: absolute;
+  font-size: $font-size-md;
+  color: $color-success;
+  font-weight: $font-weight-bold;
+}

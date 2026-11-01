@@ -1,0 +1,216 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
+  padding: 24rpx $page-padding 48rpx;
+}
+
+/* 难度选择 */
+.diffCard {
+  background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.diffTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include serif-font;
+}
+
+.diffRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.diffItem {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+.diffItemActive {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border: 1rpx solid $color-primary-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20rpx $color-gold-glow;
+}
+
+.diffText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.diffTextActive {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: #1c150c;
+}
+
+.diffHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+}
+
+/* 游戏列表 */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.gameCard {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  transition: all $transition-fast;
+
+  &:active {
+    border-color: $color-primary;
+    transform: scale(0.98);
+  }
+}
+
+.iconWrap {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: $radius-md;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-gold-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  font-size: 56rpx;
+  line-height: 1;
+}
+
+.info {
+  flex: 1;
+  margin-left: $spacing-md;
+  overflow: hidden;
+}
+
+.name {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+}
+
+.slogan {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  margin-top: 6rpx;
+  display: block;
+  @include text-ellipsis;
+}
+
+.desc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 6rpx;
+  display: block;
+  @include text-ellipsis-multi(1);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+.dimTag {
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1rpx solid $color-gold-border;
+}
+
+.dimText {
+  font-size: 20rpx;
+  color: $color-primary;
+  white-space: nowrap;
+}
+
+.best {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  @include nums;
+}
+
+.arrow {
+  font-size: 36rpx;
+  color: $color-text-tertiary;
+  line-height: 1;
+}
+
+/* 专注入口 */
+.focusCard {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.16) 0%, $color-bg-card 70%);
+  border: 1rpx solid $color-gold-border;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.focusIcon {
+  font-size: 60rpx;
+  line-height: 1;
+}
+
+.focusInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.focusName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
+  display: block;
+}
+
+.focusDesc {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: 6rpx;
+  display: block;
+}

@@ -37,7 +37,7 @@ const LEVEL_CONFIG: Record<Difficulty, { balls: number; targets: number; observe
 }
 
 // 标记阶段时长：目标球闪烁展示，供玩家记住（秒）
-const MARK_SEC = 2
+const MARK_SEC = 3
 
 // 移动速度档位：用户可自行调节
 const SPEED_OPTIONS = [

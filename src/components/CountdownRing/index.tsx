@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
+import { rpxToPx } from '@/utils/style'
 import styles from './index.module.scss'
 
 interface CountdownRingProps {
@@ -49,7 +50,10 @@ const CountdownRing: React.FC<CountdownRingProps> = ({
   const urgent = remain <= 3
 
   return (
-    <View className={styles.wrap} style={{ width: `${size}rpx`, height: `${size}rpx` }}>
+    <View
+      className={styles.wrap}
+      style={{ width: rpxToPx(size), height: rpxToPx(size) }}
+    >
       {/* 轨道整环 */}
       <View className={styles.track} />
       {/* 右半圆进度弧 */}

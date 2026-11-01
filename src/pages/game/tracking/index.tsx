@@ -234,7 +234,11 @@ const TrackingPage: React.FC = () => {
                   b.reveal === 'correct' ? styles.ballReveal : '',
                   b.reveal === 'wrong' ? styles.ballWrong : ''
                 ].join(' ')}
-                style={{ left: `${b.x}rpx`, top: `${b.y}rpx` }}
+                // 内联样式用百分比定位（rpx 在 H5 内联样式中无效，会被浏览器丢弃）
+                style={{
+                  left: `${(b.x / BOX_W) * 100}%`,
+                  top: `${(b.y / BOX_H) * 100}%`
+                }}
                 onClick={() => toggleSelect(b.id)}
               >
                 {b.reveal === 'correct' ? <Text className={styles.ballStar}>★</Text> : null}

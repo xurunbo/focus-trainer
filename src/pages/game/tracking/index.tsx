@@ -28,12 +28,62 @@ const BOX_H = 500 // rpx，场地高
 const BALL_SIZE = 64 // rpx，球直径
 const EDGE = 6 // 距场地边缘最小距离
 
-// 规则：观察期内只有 isTarget 的球会移动，其余球完全静止
-// 观察结束后全部静止，凭记忆选出刚才动过的球
+// 经典多目标追踪规则：全部球自由移动并相互碰撞，其中 targets 颗金色目标球
+// 需要全程盯住；观察期结束全场定格并从 1 开始编号，凭记忆点出目标球
 const LEVEL_CONFIG: Record<Difficulty, { balls: number; targets: number; observeSec: number; speed: number }> = {
   easy: { balls: 10, targets: 3, observeSec: 5, speed: 85 },
   medium: { balls: 12, targets: 4, observeSec: 4, speed: 110 },
   hard: { balls: 15, targets: 5, observeSec: 3, speed: 140 }
+}
+
+// 移动速度档位：用户可自行调节
+const SPEED_OPTIONS = [
+  { key: 'slow', label: '悠闲', factor: 0.6 },
+  { key: 'normal', label: '标准', factor: 1 },
+  { key: 'fast', label: '迅捷', factor: 1.5 }
+] as const
+type SpeedKey = (typeof SPEED_OPTIONS)[number]['key']
+
+const clampX = (x: number) => Math.min(Math.max(x, EDGE), BOX_W - BALL_SIZE - EDGE)
+const clampY = (y: number) => Math.min(Math.max(y, EDGE), BOX_H - BALL_SIZE - EDGE)
+
+// 球球弹性碰撞：等质量同半径球沿连心线交换法向速度分量，并分离重叠
+function resolveCollisions(balls: Ball[]): Ball[] {
+  const next = balls.map((b) => ({ ...b }))
+  const diameter = BALL_SIZE * 2
+  for (let i = 0; i < next.length; i++) {
+    for (let j = i + 1; j < next.length; j++) {
+      const a = next[i]
+      const b = next[j]
+      let dx = b.x - a.x
+      let dy = b.y - a.y
+      let dist = Math.hypot(dx, dy)
+      if (dist === 0) {
+        // 完全重合时给确定性微小方向，避免除零
+        dx = 1
+        dy = 0
+        dist = 1
+      }
+      if (dist >= diameter) continue
+      const nx = dx / dist
+      const ny = dy / dist
+      // 位置分离：沿连心线各退一半重叠量，防止粘连
+      const overlap = (diameter - dist) / 2 + 0.5
+      a.x = clampX(a.x - nx * overlap)
+      a.y = clampY(a.y - ny * overlap)
+      b.x = clampX(b.x + nx * overlap)
+      b.y = clampY(b.y + ny * overlap)
+      // 仅在相互接近时交换法向分量（等质量弹性碰撞，动量与动能均守恒）
+      const approach = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny
+      if (approach < 0) {
+        a.vx += approach * nx
+        a.vy += approach * ny
+        b.vx -= approach * nx
+        b.vy -= approach * ny
+      }
+    }
+  }
+  return next
 }
 
 type Stage = 'intro' | 'observe' | 'answer' | 'result'
@@ -71,17 +121,20 @@ const TrackingPage: React.FC = () => {
   const [stage, setStage] = useState<Stage>('intro')
   const [balls, setBalls] = useState<Ball[]>([])
   const [observeLeft, setObserveLeft] = useState(cfg.observeSec)
+  const [speedKey, setSpeedKey] = useState<SpeedKey>('normal')
   const [correctCount, setCorrectCount] = useState(0)
   const [score, setScore] = useState(0)
   const startTime = useRef(0)
+
+  const speedFactor = SPEED_OPTIONS.find((s) => s.key === speedKey)!.factor
 
   const startGame = () => {
     const targetIds = new Set(shuffle(Array.from({ length: cfg.balls }, (_, i) => i)).slice(0, cfg.targets))
     const positions = placeBalls(cfg.balls)
     const newBalls: Ball[] = positions.map((pos, i) => {
-      // 目标球获得随机方向与速度；非目标球速度为 0（完全静止）
+      // 全部球都获得随机方向与速度（乘用户选择的速度倍率）
       const angle = Math.random() * Math.PI * 2
-      const speed = cfg.speed * (0.85 + Math.random() * 0.3)
+      const speed = cfg.speed * speedFactor * (0.85 + Math.random() * 0.3)
       return {
         id: i,
         x: pos.x,
@@ -101,7 +154,7 @@ const TrackingPage: React.FC = () => {
     setStage('observe')
   }
 
-  // 观察阶段：requestAnimationFrame 驱动目标球移动，碰壁反弹
+  // 观察阶段：requestAnimationFrame 驱动全部球移动，碰壁反弹 + 球球弹性碰撞
   useEffect(() => {
     if (stage !== 'observe') return
     let raf = 0
@@ -109,9 +162,9 @@ const TrackingPage: React.FC = () => {
     const tick = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000) // 秒，限制切后台后的跳变
       last = now
-      setBalls((prev) =>
-        prev.map((b) => {
-          if (!b.isTarget) return b
+      setBalls((prev) => {
+        // 1. 全部球匀速移动，碰壁反弹
+        const moved = prev.map((b) => {
           let nx = b.x + b.vx * dt
           let ny = b.y + b.vy * dt
           let nvx = b.vx
@@ -132,7 +185,9 @@ const TrackingPage: React.FC = () => {
           }
           return { ...b, x: nx, y: ny, vx: nvx, vy: nvy }
         })
-      )
+        // 2. 球球弹性碰撞
+        return resolveCollisions(moved)
+      })
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
@@ -205,7 +260,7 @@ const TrackingPage: React.FC = () => {
       accuracy: finalScore,
       durationSec,
       difficulty,
-      detail: `命中 ${correct}/${cfg.targets} 个移动球`
+      detail: `命中 ${correct}/${cfg.targets} 个金色目标球`
     })
     const unlocked = useUserStore.getState().achievements.filter((a) => !before.has(a))
     if (unlocked.length) {
@@ -229,11 +284,29 @@ const TrackingPage: React.FC = () => {
           <Text className={styles.introIcon}>👀</Text>
           <Text className={styles.introTitle}>多目标追踪</Text>
           <Text className={styles.introText}>
-            {DIFFICULTY_LABEL[difficulty]}模式：{cfg.balls} 颗球中，{"\n"}
-            会有 {cfg.targets} 颗悄悄移动，其余球一动不动。{"\n"}
-            请在 {cfg.observeSec} 秒内看清哪几颗在动，{"\n"}
-            时间结束后把它们一颗颗指出来。
+            {DIFFICULTY_LABEL[difficulty]}模式：{cfg.balls} 颗球全部自由移动，{"\n"}
+            相互碰撞，其中 {cfg.targets} 颗是金色目标球。{"\n"}
+            请在 {cfg.observeSec} 秒内始终盯住金色球，{"\n"}
+            时间一到全场定格并编号，凭记忆点出它们。
           </Text>
+          <View className={styles.speedRow}>
+            <Text className={styles.speedLabel}>移动速度</Text>
+            <View className={styles.speedOptions}>
+              {SPEED_OPTIONS.map((opt) => (
+                <View
+                  key={opt.key}
+                  className={[styles.speedBtn, speedKey === opt.key ? styles.speedBtnActive : ''].join(' ')}
+                  onClick={() => setSpeedKey(opt.key)}
+                >
+                  <Text
+                    className={[styles.speedBtnText, speedKey === opt.key ? styles.speedBtnTextActive : ''].join(' ')}
+                  >
+                    {opt.label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
           <View className={styles.startBtn} onClick={startGame}>
             <Text className={styles.startBtnText}>开始训练</Text>
           </View>
@@ -249,6 +322,7 @@ const TrackingPage: React.FC = () => {
                 key={b.id}
                 className={[
                   styles.ball,
+                  b.isTarget ? styles.ballTarget : '',
                   stage === 'answer' && b.selected ? styles.ballSelected : '',
                   b.reveal === 'correct' ? styles.ballReveal : '',
                   b.reveal === 'wrong' ? styles.ballWrong : ''
@@ -262,6 +336,10 @@ const TrackingPage: React.FC = () => {
               >
                 {b.reveal === 'correct' ? <Text className={styles.ballStar}>★</Text> : null}
                 {b.reveal === 'wrong' ? <Text className={styles.ballCross}>✕</Text> : null}
+                {/* 观察结束全场定格后，从 1 开始为每颗球编号 */}
+                {stage !== 'observe' && b.reveal === 'none' ? (
+                  <Text className={[styles.ballNum, b.isTarget ? styles.ballNumTarget : ''].join(' ')}>{b.id + 1}</Text>
+                ) : null}
               </StyledView>
             ))}
           </View>
@@ -279,7 +357,7 @@ const TrackingPage: React.FC = () => {
                     css={{ width: `${Math.max(0, (observeLeft / cfg.observeSec) * 100)}%` }}
                   />
                 </View>
-                <Text className={styles.tipText}>仔细观察：哪些球正在移动？</Text>
+                <Text className={styles.tipText}>全场移动中：盯住 {cfg.targets} 颗金色球！</Text>
               </View>
             )}
             {stage === 'answer' && (
@@ -299,7 +377,7 @@ const TrackingPage: React.FC = () => {
               </View>
             )}
             {stage === 'answer' && (
-              <Text className={styles.answerHint}>刚才移动的是哪几颗？点选它们（可取消重选）</Text>
+              <Text className={styles.answerHint}>全场已定格：刚才盯住的金色球是几号？点选它们（可取消重选）</Text>
             )}
           </View>
         </View>

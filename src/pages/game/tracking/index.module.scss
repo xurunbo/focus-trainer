@@ -91,6 +91,73 @@
   justify-content: center;
 }
 
+/* 金色目标球：全场移动中醒目，便于全程盯住 */
+.ballTarget {
+  background: radial-gradient(circle at 35% 30%, #f7dc8a, #b8912f);
+  border: 2rpx solid rgba(255, 232, 160, 0.95);
+  box-shadow: 0 0 20rpx rgba(212, 175, 55, 0.6);
+}
+
+/* 定格编号：观察结束后每颗球中央显示 1..N */
+.ballNum {
+  font-size: 32rpx;
+  font-weight: $font-weight-bold;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+  @include nums;
+  pointer-events: none;
+}
+
+.ballNumTarget {
+  color: #3a2a08;
+}
+
+/* 移动速度档位选择 */
+.speedRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  margin-top: $spacing-xl;
+}
+
+.speedLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.speedOptions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.speedBtn {
+  padding: 10rpx 32rpx;
+  border-radius: $radius-round;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1rpx solid $color-gold-border;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.speedBtnActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-color: transparent;
+  box-shadow: 0 0 16rpx $color-gold-glow;
+}
+
+.speedBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.speedBtnTextActive {
+  color: #1c150c;
+  font-weight: $font-weight-semibold;
+}
+
 .ballSelected {
   border: 4rpx solid $color-primary-light;
   box-shadow: 0 0 20rpx $color-gold-glow;

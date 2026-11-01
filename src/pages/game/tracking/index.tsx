@@ -31,9 +31,9 @@ const EDGE = 6 // 距场地边缘最小距离
 // 经典多目标追踪（MOT）规则：全部球同色；先闪烁标记 targets 颗目标球供记忆，
 // 随后全场同色自由移动并相互碰撞；观察期结束定格并从 1 开始编号，凭记忆点出目标球
 const LEVEL_CONFIG: Record<Difficulty, { balls: number; targets: number; observeSec: number; speed: number }> = {
-  easy: { balls: 10, targets: 3, observeSec: 5, speed: 85 },
-  medium: { balls: 12, targets: 4, observeSec: 4, speed: 110 },
-  hard: { balls: 15, targets: 5, observeSec: 3, speed: 140 }
+  easy: { balls: 10, targets: 3, observeSec: 15, speed: 85 },
+  medium: { balls: 12, targets: 4, observeSec: 12, speed: 110 },
+  hard: { balls: 15, targets: 5, observeSec: 9, speed: 140 }
 }
 
 // 标记阶段时长：目标球闪烁展示，供玩家记住（秒）

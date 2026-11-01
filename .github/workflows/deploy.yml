@@ -6,12 +6,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,16 +25,14 @@ jobs:
       - name: 构建 H5 产物
         run: npm run build:h5
 
-      - uses: actions/upload-pages-artifact@v3
+      # 直接把构建产物推送到 gh-pages 分支发布。
+      # 不走 upload-pages-artifact/deploy-pages 官方通道（该通道 2026-11-01 夜间持续故障，
+      # 连续 4 次上传失败 exit code 2，构建本身全部成功）；git push 分支通道稳定可靠。
+      # 注意：需在仓库 Settings → Pages → Source 选择 "Deploy from a branch: gh-pages /(root)"
+      - name: 发布到 gh-pages 分支
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          branch: gh-pages
+          folder: dist
+          clean: true
+          single-commit: true

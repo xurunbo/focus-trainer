@@ -5,6 +5,7 @@ import { useUserStore, showAchievementToasts } from '@/store/user'
 import GameShell from '@/components/GameShell'
 import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
+import StyledView from '@/components/StyledView'
 import { getGameMeta } from '@/data/games'
 import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
 import { feedback } from '@/utils/feedback'
@@ -226,7 +227,7 @@ const TrackingPage: React.FC = () => {
         <View className={styles.gameArea}>
           <View className={styles.box}>
             {balls.map((b) => (
-              <View
+              <StyledView
                 key={b.id}
                 className={[
                   styles.ball,
@@ -234,8 +235,8 @@ const TrackingPage: React.FC = () => {
                   b.reveal === 'correct' ? styles.ballReveal : '',
                   b.reveal === 'wrong' ? styles.ballWrong : ''
                 ].join(' ')}
-                // 内联样式用百分比定位（rpx 在 H5 内联样式中无效，会被浏览器丢弃）
-                style={{
+                // 内联 style prop 会被 Taro H5 丢弃，位置经 StyledView 直接写入 DOM
+                css={{
                   left: `${(b.x / BOX_W) * 100}%`,
                   top: `${(b.y / BOX_H) * 100}%`
                 }}
@@ -243,7 +244,7 @@ const TrackingPage: React.FC = () => {
               >
                 {b.reveal === 'correct' ? <Text className={styles.ballStar}>★</Text> : null}
                 {b.reveal === 'wrong' ? <Text className={styles.ballCross}>✕</Text> : null}
-              </View>
+              </StyledView>
             ))}
           </View>
 

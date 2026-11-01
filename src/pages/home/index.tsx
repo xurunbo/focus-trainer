@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
+import StyledView from '@/components/StyledView'
 import { GAMES } from '@/data/games'
 import { generateDailyPlan } from '@/data/plan'
 import { brainScoreTotal, EXP_PER_LEVEL } from '@/utils/score'
@@ -37,7 +38,7 @@ const HomePage: React.FC = () => {
         </View>
         <View className={styles.expRow}>
           <View className={styles.expTrack}>
-            <View className={styles.expFill} style={{ width: `${expPct}%` }} />
+            <StyledView className={styles.expFill} css={{ width: `${expPct}%` }} />
           </View>
           <Text className={styles.expText}>{expInLevel}/{EXP_PER_LEVEL}</Text>
         </View>
@@ -65,9 +66,9 @@ const HomePage: React.FC = () => {
             <View key={name} className={styles.miniRow}>
               <Text className={styles.miniName}>{name}</Text>
               <View className={styles.miniTrack}>
-                <View
+                <StyledView
                   className={styles.miniFill}
-                  style={{ width: `${val}%`, background: color }}
+                  css={{ width: `${val}%`, background: color }}
                 />
               </View>
               <Text className={styles.miniVal}>{val}</Text>

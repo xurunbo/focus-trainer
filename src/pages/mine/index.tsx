@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
+import StyledView from '@/components/StyledView'
 import { brainScoreTotal, EXP_PER_LEVEL, titleFromLevel } from '@/utils/score'
 import { ACHIEVEMENTS } from '@/data/achievements'
 import PageHeader from '@/components/PageHeader'
@@ -33,9 +34,9 @@ const MinePage: React.FC = () => {
         </View>
         <View className={styles.expRow}>
           <View className={styles.expTrack}>
-            <View
+            <StyledView
               className={styles.expFill}
-              style={{ width: `${Math.round((expInLevel / EXP_PER_LEVEL) * 100)}%` }}
+              css={{ width: `${Math.round((expInLevel / EXP_PER_LEVEL) * 100)}%` }}
             />
           </View>
           <Text className={styles.expText}>经验 {expInLevel}/{EXP_PER_LEVEL}</Text>

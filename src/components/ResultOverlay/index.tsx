@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import StyledText from '@/components/StyledText'
 import { gradeFromScore } from '@/utils/score'
 import styles from './index.module.scss'
 
@@ -30,7 +31,7 @@ const ResultOverlay: React.FC<ResultOverlayProps> = ({
       <View className={styles.panel}>
         <View className={styles.decoTop} />
         <Text className={styles.finish}>训练完成</Text>
-        <Text className={styles.grade} style={{ color: grade.color }}>{grade.label}</Text>
+        <StyledText className={styles.grade} css={{ color: grade.color }}>{grade.label}</StyledText>
         <View className={styles.scoreBox}>
           <Text className={styles.scoreNum}>{score}</Text>
           <Text className={styles.scoreUnit}>{scoreUnit}</Text>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
+import StyledView from '@/components/StyledView'
 import styles from './index.module.scss'
 
 interface BarStatProps {
@@ -15,9 +16,9 @@ const BarStat: React.FC<BarStatProps> = ({ label, value, color = '#d4af37', suff
     <View className={styles.row}>
       <Text className={styles.label}>{label}</Text>
       <View className={styles.track}>
-        <View
+        <StyledView
           className={styles.fill}
-          style={{ width: `${Math.min(100, value)}%`, background: color }}
+          css={{ width: `${Math.min(100, value)}%`, background: color }}
         />
       </View>
       <Text className={styles.value}>{value}{suffix}</Text>

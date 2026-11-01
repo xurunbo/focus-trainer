@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
+import StyledView from '@/components/StyledView'
 import { rpxToPx } from '@/utils/style'
 import styles from './index.module.scss'
 
@@ -50,31 +51,31 @@ const CountdownRing: React.FC<CountdownRingProps> = ({
   const urgent = remain <= 3
 
   return (
-    <View
+    <StyledView
       className={styles.wrap}
-      style={{ width: rpxToPx(size), height: rpxToPx(size) }}
+      css={{ width: rpxToPx(size), height: rpxToPx(size) }}
     >
       {/* 轨道整环 */}
       <View className={styles.track} />
       {/* 右半圆进度弧 */}
       <View className={styles.maskRight}>
-        <View
+        <StyledView
           className={[styles.arc, urgent ? styles.arcRightUrgent : styles.arcRight].join(' ')}
-          style={{ transform: `rotate(${rightDeg}deg)` }}
+          css={{ transform: `rotate(${rightDeg}deg)` }}
         />
       </View>
       {/* 左半圆进度弧 */}
       <View className={styles.maskLeft}>
-        <View
+        <StyledView
           className={[styles.arc, urgent ? styles.arcLeftUrgent : styles.arcLeft].join(' ')}
-          style={{ transform: `rotate(${leftDeg}deg)` }}
+          css={{ transform: `rotate(${leftDeg}deg)` }}
         />
       </View>
       <View className={styles.center}>
         <Text className={urgent ? styles.numUrgent : styles.num}>{remain}</Text>
         {label ? <Text className={styles.label}>{label}</Text> : null}
       </View>
-    </View>
+    </StyledView>
   )
 }
 

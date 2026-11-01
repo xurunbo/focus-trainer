@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
 import BarStat from '@/components/BarStat'
 import PageHeader from '@/components/PageHeader'
+import StyledView from '@/components/StyledView'
 import { summarizeHistory } from '@/utils/score'
 import { ACHIEVEMENTS } from '@/data/achievements'
 import styles from './index.module.scss'
@@ -78,9 +79,9 @@ const StatsPage: React.FC = () => {
           {days.map((d, i) => (
             <View key={i} className={styles.chartCol}>
               <View className={styles.chartBarWrap}>
-                <View
+                <StyledView
                   className={d.count > 0 ? styles.chartBar : styles.chartBarEmpty}
-                  style={{ height: `${Math.round((d.count / maxCount) * 100)}%` }}
+                  css={{ height: `${Math.round((d.count / maxCount) * 100)}%` }}
                 />
               </View>
               <Text className={styles.chartLabel}>{d.label}</Text>

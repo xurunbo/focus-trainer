@@ -5,11 +5,13 @@ import { useUserStore, showAchievementToasts } from '@/store/user'
 import GameShell from '@/components/GameShell'
 import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
+import StyledView from '@/components/StyledView'
 import { getGameMeta } from '@/data/games'
 import { CHAR_GROUPS, CHAR_GRID_SPEC } from '@/data/characters'
 import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
 import { feedback } from '@/utils/feedback'
 import { randomInt, shuffle } from '@/utils/random'
+import { rpxToPx } from '@/utils/style'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
 
@@ -152,21 +154,22 @@ const CharacterPage: React.FC = () => {
   const renderGrid = (showMark: boolean) => {
     if (!currentRound) return null
     const gap = 8
-    const cellW = `calc((100% - ${(spec.cols - 1) * gap}rpx) / ${spec.cols})`
+    // calc() 内的 rpx 浏览器无法解析，换算成 px
+    const cellW = `calc((100% - ${rpxToPx((spec.cols - 1) * gap)}) / ${spec.cols})`
     const cells = []
     for (let i = 0; i < currentRound.total; i++) {
       // 记忆阶段：目标字位于 targetIndex（金环标记）；答题阶段：目标字换到 answerIndex
       const isTarget = showMark ? i === currentRound.targetIndex : i === currentRound.answerIndex
       const isPicked = picked === i
       cells.push(
-        <View
+        <StyledView
           key={i}
           className={[
             styles.cell,
             showMark && isTarget ? styles.cellMarked : '',
             isPicked ? (isTarget ? styles.cellRight : styles.cellWrong) : ''
           ].join(' ')}
-          style={{ width: cellW }}
+          css={{ width: cellW }}
           onClick={() => tapCell(i)}
         >
           <Text className={styles.cellText}>
@@ -175,7 +178,7 @@ const CharacterPage: React.FC = () => {
           {showMark && isTarget ? <View className={styles.markRing} /> : null}
           {isPicked && !isTarget ? <Text className={styles.pickedTag}>✕</Text> : null}
           {isPicked && isTarget ? <Text className={styles.pickedRightTag}>✓</Text> : null}
-        </View>
+        </StyledView>
       )
     }
     return <View className={styles.grid}>{cells}</View>

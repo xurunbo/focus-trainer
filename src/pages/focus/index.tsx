@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
 import NavBar from '@/components/NavBar'
 import ResultOverlay from '@/components/ResultOverlay'
+import StyledView from '@/components/StyledView'
 import { feedback } from '@/utils/feedback'
 import { useTrainingBgm } from '@/utils/bgm'
 import styles from './index.module.scss'
@@ -91,16 +92,16 @@ const FocusPage: React.FC = () => {
         <View className={styles.ringTrack} />
         {/* 右半圆进度弧 */}
         <View className={styles.maskRight}>
-          <View
+          <StyledView
             className={[styles.ringArc, styles.ringArcRight].join(' ')}
-            style={{ transform: `rotate(${rightDeg}deg)` }}
+            css={{ transform: `rotate(${rightDeg}deg)` }}
           />
         </View>
         {/* 左半圆进度弧 */}
         <View className={styles.maskLeft}>
-          <View
+          <StyledView
             className={[styles.ringArc, styles.ringArcLeft].join(' ')}
-            style={{ transform: `rotate(${leftDeg}deg)` }}
+            css={{ transform: `rotate(${leftDeg}deg)` }}
           />
         </View>
         <View className={styles.timerCenter}>

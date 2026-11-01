@@ -25,7 +25,7 @@ function initialState(): UserState {
     todayDate: todayStr(),
     history: [],
     achievements: [],
-    settings: { sound: true, vibrate: true, dailyGoal: 4 },
+    settings: { sound: true, vibrate: true, music: true, dailyGoal: 4 },
     pomodoroCount: 0,
     focusTotalMin: 0
   }

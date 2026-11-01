@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
 import { brainScoreTotal, EXP_PER_LEVEL, titleFromLevel } from '@/utils/score'
 import { ACHIEVEMENTS } from '@/data/achievements'
+import PageHeader from '@/components/PageHeader'
 import styles from './index.module.scss'
 
 const MinePage: React.FC = () => {
@@ -14,11 +15,13 @@ const MinePage: React.FC = () => {
   const entries = [
     { icon: '🏆', name: '排行榜', desc: '看看别人的脑力值', url: '/pages/mine/leaderboard/index' },
     { icon: '🎖️', name: '成就殿堂', desc: `${store.achievements.length}/${ACHIEVEMENTS.length} 已解锁`, url: '/pages/mine/achievements/index' },
-    { icon: '⚙️', name: '设置', desc: '音效、震动与目标', url: '/pages/mine/settings/index' }
+    { icon: '⚙️', name: '设置', desc: '音效、震动与音乐', url: '/pages/mine/settings/index' }
   ]
 
   return (
     <View className={styles.container}>
+      <PageHeader title="我的" />
+
       {/* 用户信息 */}
       <View className={styles.profileCard}>
         <View className={styles.avatarWrap}>

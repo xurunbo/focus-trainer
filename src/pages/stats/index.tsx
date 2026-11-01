@@ -3,6 +3,7 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
 import BarStat from '@/components/BarStat'
+import PageHeader from '@/components/PageHeader'
 import { summarizeHistory } from '@/utils/score'
 import { ACHIEVEMENTS } from '@/data/achievements'
 import styles from './index.module.scss'
@@ -37,7 +38,7 @@ const StatsPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
-      <Text className={styles.pageTitle}>修炼数据</Text>
+      <PageHeader title="修炼数据" />
 
       {/* 总览 */}
       <View className={styles.overviewCard}>

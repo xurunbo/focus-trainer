@@ -10,8 +10,9 @@
 .header {
   display: flex;
   align-items: center;
-  padding: 20rpx $page-padding;
+  padding: calc(env(safe-area-inset-top, 0px) + 20rpx) $page-padding 20rpx;
   position: relative;
+  flex-shrink: 0;
 
   &::after {
     content: '';
@@ -73,6 +74,29 @@
   font-size: $font-size-xs;
   color: $color-primary;
   white-space: nowrap;
+}
+
+.musicBtn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  border: 1rpx solid $color-gold-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+}
+
+.musicIcon {
+  font-size: 30rpx;
+  line-height: 1;
 }
 
 .body {

@@ -5,6 +5,7 @@
   background: radial-gradient(120% 50% at 50% 0%, #241a0c 0%, $color-bg-page 55%);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .content {
@@ -13,6 +14,33 @@
   flex-direction: column;
   align-items: center;
   padding: 24rpx $page-padding 48rpx;
+}
+
+/* 背景音乐悬浮开关 */
+.musicFab {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 20rpx);
+  right: $page-padding;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  background: $color-bg-inset;
+  border: 1rpx solid $color-gold-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+}
+
+.musicFabIcon {
+  font-size: 30rpx;
+  line-height: 1;
 }
 
 /* 计时器 */

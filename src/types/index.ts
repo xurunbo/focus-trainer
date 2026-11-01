@@ -42,6 +42,7 @@ export interface UserProfile {
 export interface Settings {
   sound: boolean
   vibrate: boolean
+  music: boolean
   dailyGoal: number
 }
 

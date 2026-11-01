@@ -63,22 +63,24 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .box {
-  width: 100%;
-  height: 640rpx;
+  width: 640rpx;
+  height: 500rpx;
   background: $color-bg-inset;
   border: 2rpx solid $color-gold-border;
   border-radius: $radius-md;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .ball {
   position: absolute;
-  width: 72rpx;
-  height: 72rpx;
+  width: 64rpx;
+  height: 64rpx;
   border-radius: $radius-round;
   background: radial-gradient(circle at 35% 30%, #6b5a38, #3a2f1c);
   display: flex;
@@ -86,14 +88,20 @@
   justify-content: center;
 }
 
-.ballTarget {
-  background: radial-gradient(circle at 35% 30%, #ffe9a8, #d4af37);
-  box-shadow: 0 0 24rpx $color-gold-glow, 0 0 8rpx #f5d76e;
-}
-
 .ballSelected {
   border: 4rpx solid $color-primary-light;
   box-shadow: 0 0 20rpx $color-gold-glow;
+  animation: ballPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ballPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
 }
 
 .ballReveal {
@@ -107,13 +115,13 @@
 }
 
 .ballStar {
-  font-size: 36rpx;
+  font-size: 32rpx;
   color: #173d1a;
   line-height: 1;
 }
 
 .ballCross {
-  font-size: 36rpx;
+  font-size: 32rpx;
   color: #4d1010;
   font-weight: $font-weight-bold;
   line-height: 1;
@@ -121,17 +129,20 @@
 
 /* 控制栏 */
 .controlBar {
-  min-height: 120rpx;
+  min-height: 200rpx;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: $spacing-sm;
   margin-top: $spacing-md;
+  width: 100%;
 }
 
-.tipCard {
+.observeBar {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: $spacing-lg;
   padding: $spacing-sm $spacing-lg;
   background: rgba(212, 175, 55, 0.1);
   border: 1rpx solid $color-gold-border;
@@ -150,9 +161,15 @@
 }
 
 .answerTip {
-  font-size: $font-size-md;
-  color: $color-text-secondary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-gold;
   @include nums;
+}
+
+.answerHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
 }
 
 .submitBtn {
@@ -168,6 +185,11 @@
   &:active {
     transform: scale(0.97);
   }
+}
+
+.submitBtnDisabled {
+  opacity: 0.45;
+  box-shadow: none;
 }
 
 .submitBtnText {

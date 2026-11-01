@@ -1,0 +1,36 @@
+@use '@/styles/variables.scss' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 28rpx) $page-padding 20rpx;
+  flex-shrink: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.goldBar {
+  width: 8rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(180deg, $color-primary-light, $color-primary-dark);
+  box-shadow: 0 0 16rpx $color-gold-glow;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-gold;
+  letter-spacing: 6rpx;
+  @include serif-font;
+}
+
+.extra {
+  display: flex;
+  align-items: center;
+}

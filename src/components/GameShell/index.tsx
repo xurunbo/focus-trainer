@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { useTrainingBgm } from '@/utils/bgm'
 import styles from './index.module.scss'
 
 interface GameShellProps {
@@ -11,8 +12,10 @@ interface GameShellProps {
   requireConfirm?: boolean
 }
 
-// 游戏页面框架：顶部导航 + 阶段提示 + 返回确认
+// 游戏页面框架：顶部导航 + 阶段提示 + 背景音乐开关 + 返回确认
 const GameShell: React.FC<GameShellProps> = ({ title, stage, children, requireConfirm = true }) => {
+  const { musicOn, toggleMusic } = useTrainingBgm()
+
   const handleBack = () => {
     if (!requireConfirm) {
       Taro.navigateBack().catch(() => {
@@ -40,6 +43,9 @@ const GameShell: React.FC<GameShellProps> = ({ title, stage, children, requireCo
         <Text className={styles.title}>{title}</Text>
         <View className={styles.stageBadge}>
           <Text className={styles.stageText}>{stage}</Text>
+        </View>
+        <View className={styles.musicBtn} onClick={toggleMusic}>
+          <Text className={styles.musicIcon}>{musicOn ? '🎵' : '🔇'}</Text>
         </View>
       </View>
       <View className={styles.body}>{children}</View>

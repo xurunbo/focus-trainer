@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
 import { GAMES } from '@/data/games'
 import { DIFFICULTY_LABEL } from '@/utils/score'
+import PageHeader from '@/components/PageHeader'
 import type { Difficulty } from '@/types'
 import styles from './index.module.scss'
 
@@ -22,6 +23,8 @@ const TrainPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
+      <PageHeader title="修炼场" />
+
       {/* 难度选择 */}
       <View className={styles.diffCard}>
         <Text className={styles.diffTitle}>选择难度</Text>

@@ -53,6 +53,17 @@ const SettingsPage: React.FC = () => {
             onChange={(e) => store.updateSettings({ vibrate: e.detail.value })}
           />
         </View>
+        <View className={styles.row}>
+          <View className={styles.rowInfo}>
+            <Text className={styles.rowName}>训练背景音乐</Text>
+            <Text className={styles.rowDesc}>训练页面的轻柔音乐，可在页面内随时开关</Text>
+          </View>
+          <Switch
+            color="#d4af37"
+            checked={store.settings.music}
+            onChange={(e) => store.updateSettings({ music: e.detail.value })}
+          />
+        </View>
       </View>
 
       {/* 每日目标 */}

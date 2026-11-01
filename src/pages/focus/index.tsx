@@ -5,12 +5,14 @@ import { useUserStore } from '@/store/user'
 import NavBar from '@/components/NavBar'
 import ResultOverlay from '@/components/ResultOverlay'
 import { feedback } from '@/utils/feedback'
+import { useTrainingBgm } from '@/utils/bgm'
 import styles from './index.module.scss'
 
 const DURATIONS = [15, 25, 45, 60]
 
 const FocusPage: React.FC = () => {
   const store = useUserStore()
+  const { musicOn, toggleMusic } = useTrainingBgm()
   const [minutes, setMinutes] = useState(25)
   const [totalSec, setTotalSec] = useState(25 * 60)
   const [remainSec, setRemainSec] = useState(25 * 60)
@@ -78,6 +80,10 @@ const FocusPage: React.FC = () => {
   return (
     <View className={styles.container}>
       <NavBar title="番茄专注钟" />
+      {/* 背景音乐开关（悬浮于导航栏右侧） */}
+      <View className={styles.musicFab} onClick={toggleMusic}>
+        <Text className={styles.musicFabIcon}>{musicOn ? '🎵' : '🔇'}</Text>
+      </View>
       <View className={styles.content}>
         {/* 计时器 */}
         <View className={styles.timerWrap}>

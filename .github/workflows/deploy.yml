@@ -20,10 +20,18 @@ jobs:
           cache: npm
 
       - name: 安装依赖
-        run: npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps > install.log 2>&1
+
+      - name: 诊断-安装日志
+        if: failure()
+        run: echo "::error::INSTALL_FAILED $(tr '\n' '|' < install.log | tail -c 1500)"
 
       - name: 构建 H5 产物
-        run: npm run build:h5
+        run: npm run build:h5 > build.log 2>&1
+
+      - name: 诊断-构建日志
+        if: failure()
+        run: echo "::error::BUILD_FAILED $(tr '\n' '|' < build.log | tail -c 2000)"
 
       # 直接把构建产物推送到 gh-pages 分支发布。
       # 不走 upload-pages-artifact/deploy-pages 官方通道（该通道 2026-11-01 夜间持续故障，

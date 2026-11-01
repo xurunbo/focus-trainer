@@ -137,6 +137,13 @@ const TrackingPage: React.FC = () => {
     return () => cancelAnimationFrame(raf)
   }, [stage])
 
+  // 观察阶段兜底计时：倒计时环结束时切到指认阶段（双保险，防止组件异常卡死）
+  useEffect(() => {
+    if (stage !== 'observe') return
+    const t = setTimeout(() => setStage('answer'), cfg.observeSec * 1000 + 400)
+    return () => clearTimeout(t)
+  }, [stage, cfg.observeSec])
+
   const selectedCount = balls.filter((b) => b.selected).length
 
   const toggleSelect = (id: number) => {

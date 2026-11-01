@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import styles from './index.module.scss'
 
@@ -29,15 +29,22 @@ const CountdownRing: React.FC<CountdownRingProps> = ({
     setRemain(total)
   }, [total])
 
+  // onComplete 用 ref 持有：避免父组件高频重渲染（如追踪游戏每帧移动）时
+  // 回调身份变化导致 effect 重跑、倒计时定时器被无限重置而永不结束
+  const onCompleteRef = useRef(onComplete)
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  })
+
   useEffect(() => {
     if (!running) return
     if (remain <= 0) {
-      onComplete?.()
+      onCompleteRef.current?.()
       return
     }
     const timer = setTimeout(() => setRemain((r) => r - 1), 1000)
     return () => clearTimeout(timer)
-  }, [running, remain, onComplete])
+  }, [running, remain])
 
   const urgent = remain <= 3
 

@@ -1,6 +1,5 @@
 {
   "miniprogramRoot": "dist/",
-  "cloudfunctionRoot": "cloudfunctions/",
   "projectname": "脑力修炼馆",
   "description": "专注力训练小程序",
   "appid": "wx243c15d18a0e511b",

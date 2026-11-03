@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useTrainingBgm } from '@/utils/bgm'
+import { topPaddingStyle } from '@/utils/safeArea'
 import styles from './index.module.scss'
 
 interface GameShellProps {
@@ -36,7 +37,7 @@ const GameShell: React.FC<GameShellProps> = ({ title, stage, children, requireCo
 
   return (
     <View className={styles.container}>
-      <View className={styles.header}>
+      <View className={styles.header} style={topPaddingStyle(10)}>
         <View className={styles.backBtn} onClick={handleBack}>
           <Text className={styles.backIcon}>‹</Text>
         </View>

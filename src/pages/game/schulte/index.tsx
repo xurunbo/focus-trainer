@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore, showAchievementToasts } from '@/store/user'
 import GameShell from '@/components/GameShell'
 import ResultOverlay from '@/components/ResultOverlay'
+import StyledView from '@/components/StyledView'
 import { getGameMeta } from '@/data/games'
-import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL, bestScoreOf, trainCountOf } from '@/utils/score'
 import { feedback } from '@/utils/feedback'
 import { shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
@@ -38,11 +39,19 @@ const SchultePage: React.FC = () => {
   const [wrongId, setWrongId] = useState(-1)
   const [timeLeft, setTimeLeft] = useState(cfg.timeLimit)
   const [score, setScore] = useState(0)
-  const [startTime, setStartTime] = useState(0)
   const [usedSec, setUsedSec] = useState(0)
   const [cd, setCd] = useState(3)
+  // 结算用快照：这几个值在结算瞬间必须精确，用 ref 避免 setState 异步导致的旧值
+  const foundRef = useRef(0)
+  const wrongRef = useRef(0)
+  const startRef = useRef(0)
+  const [bestBefore, setBestBefore] = useState(0)
 
   const beginGame = (m: Mode) => {
+    setBestBefore(bestScoreOf(useUserStore.getState().history, 'schulte'))
+    foundRef.current = 0
+    wrongRef.current = 0
+    startRef.current = 0
     setMode(m)
     setNumbers(shuffle(Array.from({ length: TOTAL }, (_, i) => i + 1)))
     setNextTarget(m === 'asc' ? 1 : TOTAL)
@@ -60,21 +69,23 @@ const SchultePage: React.FC = () => {
     if (stage !== 'countdown') return
     if (cd <= 0) {
       setStage('playing')
-      setStartTime(Date.now())
+      startRef.current = Date.now()
       return
     }
+    feedback('tap')
     const t = setTimeout(() => setCd((s) => s - 1), 800)
     return () => clearTimeout(t)
   }, [stage, cd])
 
-  // 游戏计时
+  // 游戏计时：按真实时间差计算剩余秒数，切后台被节流也不会少算时间
   useEffect(() => {
     if (stage !== 'playing') return
     const timer = setInterval(() => {
-      setTimeLeft((s) => Math.max(0, s - 1))
-    }, 1000)
+      const left = Math.max(0, cfg.timeLimit - Math.round((Date.now() - startRef.current) / 1000))
+      setTimeLeft(left)
+    }, 500)
     return () => clearInterval(timer)
-  }, [stage])
+  }, [stage, cfg.timeLimit])
 
   // 时间到自动结算
   useEffect(() => {
@@ -85,14 +96,18 @@ const SchultePage: React.FC = () => {
   }, [stage, timeLeft])
 
   const finishGame = (completed: boolean) => {
-    const sec = Math.max(1, Math.round((Date.now() - startTime) / 1000))
+    const sec = Math.max(1, Math.round((Date.now() - startRef.current) / 1000))
+    const found = foundRef.current
+    const wrong = wrongRef.current
     setUsedSec(sec)
     let finalScore: number
     if (completed) {
+      // 全部找到：基础分按用时给分，误点每次扣 2 分
       const ratio = sec / cfg.timeLimit
-      finalScore = Math.round(Math.max(60, 100 - ratio * 40))
+      finalScore = Math.round(Math.max(60, 100 - ratio * 40)) - wrong * 2
+      finalScore = Math.max(50, finalScore)
     } else {
-      finalScore = Math.round((foundCount / TOTAL) * 60)
+      finalScore = Math.round((found / TOTAL) * 60)
     }
     setScore(finalScore)
     feedback('finish')
@@ -102,10 +117,10 @@ const SchultePage: React.FC = () => {
       gameName: meta.name,
       dimension: 'focus',
       score: finalScore,
-      accuracy: completed ? 100 : Math.round((foundCount / TOTAL) * 100),
+      accuracy: Math.round((found / TOTAL) * 100),
       durationSec: sec,
       difficulty,
-      detail: `${mode === 'asc' ? '正序' : '倒序'}找到 ${foundCount}/${TOTAL} 个`
+      detail: `${mode === 'asc' ? '正序' : '倒序'}找到 ${found}/${TOTAL} 个${wrong > 0 ? ` · 误点 ${wrong} 次` : ''}`
     })
     const unlocked = useUserStore.getState().achievements.filter((a) => !before.has(a))
     if (unlocked.length) {
@@ -118,7 +133,8 @@ const SchultePage: React.FC = () => {
     if (stage !== 'playing') return
     if (num === nextTarget) {
       feedback('tick')
-      const nextFound = foundCount + 1
+      const nextFound = foundRef.current + 1
+      foundRef.current = nextFound
       setFoundCount(nextFound)
       if (nextFound >= TOTAL) {
         setTimeout(() => finishGame(true), 300)
@@ -127,6 +143,7 @@ const SchultePage: React.FC = () => {
       setNextTarget(mode === 'asc' ? num + 1 : num - 1)
     } else {
       feedback('wrong')
+      wrongRef.current += 1
       setWrongId(num)
       setTimeout(() => setWrongId(-1), 400)
     }
@@ -139,6 +156,10 @@ const SchultePage: React.FC = () => {
     result: '结算'
   }
 
+  const liveBest = bestScoreOf(store.history, 'schulte')
+  const liveCount = trainCountOf(store.history, 'schulte')
+  const progress = Math.round((foundCount / TOTAL) * 100)
+
   return (
     <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {stage === 'intro' && (
@@ -149,6 +170,9 @@ const SchultePage: React.FC = () => {
             在方格中按顺序击破数字。{"\n"}
             正序从 1 点到 25，倒序从 25 点到 1，{"\n"}
             选好模式，看准了再点。
+          </Text>
+          <Text className={styles.recordLine}>
+            {liveCount > 0 ? `历史最佳 ${liveBest} 分 · 已训练 ${liveCount} 次` : '首次挑战，记录从这一次开始'}
           </Text>
           <View className={styles.modeRow}>
             <View className={styles.modeBtnActive} onClick={() => beginGame('asc')}>
@@ -188,6 +212,9 @@ const SchultePage: React.FC = () => {
               <Text className={styles.statusLabel}>已找到</Text>
             </View>
           </View>
+          <View className={styles.progressTrack}>
+            <StyledView className={styles.progressFill} css={{ width: `${progress}%` }} />
+          </View>
           <View className={styles.grid}>
             {numbers.map((n) => {
               const isDone = mode === 'asc' ? n < nextTarget : n > nextTarget
@@ -212,10 +239,11 @@ const SchultePage: React.FC = () => {
       <ResultOverlay
         visible={stage === 'result'}
         score={score}
-        accuracy={Math.round((foundCount / TOTAL) * 100)}
+        accuracy={Math.round((foundRef.current / TOTAL) * 100)}
         durationSec={usedSec}
         exp={expGain(score, difficulty)}
-        detail={`${DIFFICULTY_LABEL[difficulty]} · ${mode === 'asc' ? '正序' : '倒序'}找到 ${foundCount}/${TOTAL} 个数字`}
+        best={bestBefore}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · ${mode === 'asc' ? '正序' : '倒序'}找到 ${foundRef.current}/${TOTAL} 个数字`}
         onRetry={() => beginGame(mode)}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

@@ -12,6 +12,8 @@ interface ResultOverlayProps {
   durationSec: number
   exp: number
   detail: string
+  /** 本次之前的历史最佳分（传 undefined 表示该场景不做纪录对比，如番茄钟） */
+  best?: number
   scoreUnit?: string
   gradeLabel?: string
   onRetry: () => void
@@ -20,11 +22,25 @@ interface ResultOverlayProps {
 
 // 训练结算浮层
 const ResultOverlay: React.FC<ResultOverlayProps> = ({
-  visible, score, accuracy, durationSec, exp, detail, scoreUnit = '分', gradeLabel, onRetry, onHome
+  visible, score, accuracy, durationSec, exp, detail, best, scoreUnit = '分', gradeLabel, onRetry, onHome
 }) => {
   if (!visible) return null
   const grade = gradeLabel ? { label: gradeLabel, color: '#f5d76e' } : gradeFromScore(score)
   const durText = durationSec >= 60 ? `${Math.round(durationSec / 60)} 分钟` : `${durationSec}s`
+
+  // 纪录对比：首次挑战 / 刷新纪录 / 未破纪录 三种文案
+  let recordText = ''
+  let isNewRecord = false
+  if (best !== undefined) {
+    if (best <= 0) {
+      recordText = `首次记录 · ${score}${scoreUnit}`
+    } else if (score > best) {
+      isNewRecord = true
+      recordText = `🏆 新纪录！此前最佳 ${best}${scoreUnit}`
+    } else {
+      recordText = `历史最佳 ${best}${scoreUnit}`
+    }
+  }
 
   return (
     <View className={styles.mask}>
@@ -53,6 +69,9 @@ const ResultOverlay: React.FC<ResultOverlayProps> = ({
           </View>
         </View>
         {detail ? <Text className={styles.detail}>{detail}</Text> : null}
+        {recordText ? (
+          <Text className={isNewRecord ? styles.recordNew : styles.record}>{recordText}</Text>
+        ) : null}
         <View className={styles.btnRow}>
           <View className={styles.btnSecondary} onClick={onHome}>
             <Text className={styles.btnSecondaryText}>返回首页</Text>

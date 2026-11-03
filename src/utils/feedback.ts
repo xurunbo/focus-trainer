@@ -6,15 +6,25 @@ import { useUserStore } from '@/store/user'
 
 let audioCtx: AudioContext | null = null
 
+// 跨端获取音频上下文：
+//   H5：浏览器 AudioContext / webkitAudioContext
+//   微信小程序：Taro.createWebAudioContext（基础库 2.19+ 支持 Web Audio，低版本自动降级为静音）
 function getAudioContext(): AudioContext | null {
   try {
     if (!audioCtx) {
-      const Ctor =
-        (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
-          .AudioContext ||
-        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-      if (!Ctor) return null
-      audioCtx = new Ctor()
+      if (process.env.TARO_ENV === 'weapp') {
+        const anyTaro = Taro as unknown as { createWebAudioContext?: () => AudioContext }
+        if (typeof anyTaro.createWebAudioContext !== 'function') return null
+        audioCtx = anyTaro.createWebAudioContext()
+      } else {
+        if (typeof window === 'undefined') return null
+        const Ctor =
+          (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+            .AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+        if (!Ctor) return null
+        audioCtx = new Ctor()
+      }
     }
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().catch(() => {})

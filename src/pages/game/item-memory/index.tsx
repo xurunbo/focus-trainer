@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore, showAchievementToasts } from '@/store/user'
@@ -7,7 +7,7 @@ import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
 import { MEMORY_ITEMS } from '@/data/items'
-import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL, bestScoreOf, trainCountOf } from '@/utils/score'
 import { feedback } from '@/utils/feedback'
 import { pickSome, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
@@ -22,10 +22,10 @@ interface Round {
   options: typeof MEMORY_ITEMS
 }
 
-const LEVEL_CONFIG: Record<Difficulty, { memorizeSec: number; optionCount: number }> = {
-  easy: { memorizeSec: 8, optionCount: 3 },
-  medium: { memorizeSec: 7, optionCount: 4 },
-  hard: { memorizeSec: 6, optionCount: 4 }
+const LEVEL_CONFIG: Record<Difficulty, { memorizeSec: number; optionCount: number; answerSec: number }> = {
+  easy: { memorizeSec: 8, optionCount: 3, answerSec: 15 },
+  medium: { memorizeSec: 7, optionCount: 4, answerSec: 12 },
+  hard: { memorizeSec: 6, optionCount: 4, answerSec: 10 }
 }
 
 type Stage = 'intro' | 'memorize' | 'answer' | 'result'
@@ -43,6 +43,14 @@ const ItemMemoryPage: React.FC = () => {
   const [score, setScore] = useState(0)
   const [startTime, setStartTime] = useState(0)
   const [pickedName, setPickedName] = useState('')
+  const [left, setLeft] = useState(cfg.answerSec)
+  const [results, setResults] = useState<('right' | 'wrong' | null)[]>([])
+  const [bestBefore, setBestBefore] = useState(0)
+  // 判定与计分用 ref，避免 setTimeout 闭包拿到旧 state
+  const pickedRef = useRef(false)
+  const correctRef = useRef(0)
+  const memorizeEndAt = useRef(0)
+  const answerEndAt = useRef(0)
 
   const buildRounds = (): Round[] => {
     const result: Round[] = []
@@ -68,36 +76,82 @@ const ItemMemoryPage: React.FC = () => {
   }
 
   const startGame = () => {
+    setBestBefore(bestScoreOf(useUserStore.getState().history, 'item-memory'))
+    pickedRef.current = false
+    correctRef.current = 0
     setRounds(buildRounds())
     setRoundIndex(0)
     setScore(0)
     setPickedName('')
+    setLeft(cfg.answerSec)
+    setResults([])
     setStartTime(Date.now())
     setStage('memorize')
   }
 
-  const answer = (name: string) => {
-    if (pickedName) return
+  // 记忆倒计时结束：按真实时间判定，切后台也不会失真
+  useEffect(() => {
+    if (stage !== 'memorize' || rounds.length === 0) return
+    memorizeEndAt.current = Date.now() + cfg.memorizeSec * 1000
+    const timer = setInterval(() => {
+      if (Date.now() >= memorizeEndAt.current) {
+        clearInterval(timer)
+        setStage('answer')
+        setLeft(cfg.answerSec)
+        answerEndAt.current = Date.now() + cfg.answerSec * 1000
+      }
+    }, 300)
+    return () => clearInterval(timer)
+  }, [stage, roundIndex, rounds, cfg.memorizeSec, cfg.answerSec])
+
+  // 作答倒计时
+  useEffect(() => {
+    if (stage !== 'answer') return
+    const timer = setInterval(() => {
+      const remain = Math.max(0, Math.round((answerEndAt.current - Date.now()) / 1000))
+      setLeft(remain)
+    }, 300)
+    return () => clearInterval(timer)
+  }, [stage])
+
+  // 作答超时 → 本题记为未命中
+  useEffect(() => {
+    if (stage === 'answer' && left === 0) judge(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, left])
+
+  // name 为 null 表示超时未作答
+  const judge = (name: string | null) => {
+    if (pickedRef.current) return
+    pickedRef.current = true
     const round = rounds[roundIndex]
-    const right = name === round.missing.name
+    const right = name !== null && name === round.missing.name
     feedback(right ? 'right' : 'wrong')
-    setPickedName(name)
-    const newScore = right ? 100 : 0
-    setScore((s) => s + newScore)
+    setPickedName(name || '__timeout__')
+    if (right) {
+      correctRef.current += 1
+      setScore(correctRef.current * 100)
+    }
+    setResults((prev) => {
+      const next = [...prev]
+      next[roundIndex] = right ? 'right' : 'wrong'
+      return next
+    })
     const isLast = roundIndex + 1 >= ROUNDS
     setTimeout(() => {
       if (isLast) {
-        finish(score + newScore)
+        finish(correctRef.current)
       } else {
         setRoundIndex(roundIndex + 1)
         setPickedName('')
+        pickedRef.current = false
         setStage('memorize')
       }
     }, 900)
   }
 
-  const finish = (totalScore: number) => {
-    const finalScore = Math.round(totalScore / ROUNDS)
+  const finish = (finalCorrect: number) => {
+    const finalScore = Math.round((finalCorrect / ROUNDS) * 100)
     const durationSec = Math.max(1, Math.round((Date.now() - startTime) / 1000))
     setScore(finalScore)
     feedback('finish')
@@ -110,7 +164,7 @@ const ItemMemoryPage: React.FC = () => {
       accuracy: finalScore,
       durationSec,
       difficulty,
-      detail: `共 ${ROUNDS} 轮物品记忆`
+      detail: `共 ${ROUNDS} 轮，命中 ${finalCorrect}/${ROUNDS} 轮`
     })
     const unlocked = useUserStore.getState().achievements.filter((a) => !before.has(a))
     if (unlocked.length) {
@@ -119,20 +173,31 @@ const ItemMemoryPage: React.FC = () => {
     setStage('result')
   }
 
-  // 记忆倒计时结束
-  useEffect(() => {
-    if (stage !== 'memorize' || rounds.length === 0) return
-    const t = setTimeout(() => setStage('answer'), cfg.memorizeSec * 1000)
-    return () => clearTimeout(t)
-  }, [stage, roundIndex, rounds, cfg.memorizeSec])
-
   const currentRound = rounds[roundIndex]
   const stageLabel = {
     intro: '准备',
-    memorize: `第 ${roundIndex + 1} 轮 · 记忆`,
-    answer: `第 ${roundIndex + 1} 轮 · 作答`,
+    memorize: `第 ${roundIndex + 1}/${ROUNDS} 轮 · 记忆`,
+    answer: `第 ${roundIndex + 1}/${ROUNDS} 轮 · 作答`,
     result: '结算'
   }
+
+  const roundDots = (
+    <View className={styles.roundRow}>
+      {Array.from({ length: ROUNDS }).map((_, i) => (
+        <View
+          key={i}
+          className={[
+            styles.dot,
+            i === roundIndex ? styles.dotCurrent : '',
+            results[i] === 'right' ? styles.dotRight : results[i] === 'wrong' ? styles.dotWrong : ''
+          ].join(' ')}
+        />
+      ))}
+    </View>
+  )
+
+  const liveBest = bestScoreOf(store.history, 'item-memory')
+  const liveCount = trainCountOf(store.history, 'item-memory')
 
   return (
     <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
@@ -142,8 +207,11 @@ const ItemMemoryPage: React.FC = () => {
           <Text className={styles.introTitle}>八秒物品记忆</Text>
           <Text className={styles.introText}>
             在 {cfg.memorizeSec} 秒内，记住画面中的十二件物品。{"\n"}
-            其中一件会消失，说出少了什么。{"\n"}
+            其中一件会消失，在 {cfg.answerSec} 秒内说出少了什么。{"\n"}
             看见不等于记住，共 {ROUNDS} 轮。
+          </Text>
+          <Text className={styles.recordLine}>
+            {liveCount > 0 ? `历史最佳 ${liveBest} 分 · 已训练 ${liveCount} 次` : '首次挑战，记录从这一次开始'}
           </Text>
           <View className={styles.startBtn} onClick={startGame}>
             <Text className={styles.startBtnText}>开始训练</Text>
@@ -153,6 +221,7 @@ const ItemMemoryPage: React.FC = () => {
 
       {stage === 'memorize' && currentRound && (
         <View className={styles.memorizeArea}>
+          {roundDots}
           <CountdownRing total={cfg.memorizeSec} running />
           <View className={styles.itemGrid}>
             {currentRound.shown.map((item, i) => (
@@ -168,7 +237,14 @@ const ItemMemoryPage: React.FC = () => {
 
       {stage === 'answer' && currentRound && (
         <View className={styles.answerArea}>
-          <Text className={styles.answerTip}>其中一件消失了，少了什么？</Text>
+          {roundDots}
+          <View className={styles.answerBar}>
+            <Text className={styles.answerTip}>其中一件消失了，少了什么？</Text>
+            <View className={styles.timerChip}>
+              <Text className={styles.timerNum}>{left}</Text>
+              <Text className={styles.timerUnit}>s</Text>
+            </View>
+          </View>
           <View className={styles.itemGrid}>
             {currentRound.shown
               .filter((i) => i.name !== currentRound.missing.name)
@@ -185,9 +261,9 @@ const ItemMemoryPage: React.FC = () => {
           <View className={styles.optionList}>
             {currentRound.options.map((opt) => {
               const isMissing = opt.name === currentRound.missing.name
-              const picked = pickedName === opt.name
+              const isPicked = pickedName === opt.name
               // 选中后：答对绿色高亮；答错红色高亮并揭示正确项
-              const cls = picked
+              const cls = isPicked
                 ? isMissing
                   ? styles.optionBtnRight
                   : styles.optionBtnWrong
@@ -195,10 +271,10 @@ const ItemMemoryPage: React.FC = () => {
                   ? styles.optionBtnRight
                   : styles.optionBtn
               return (
-                <View key={opt.name} className={cls} onClick={() => answer(opt.name)}>
+                <View key={opt.name} className={cls} onClick={() => judge(opt.name)}>
                   <Text className={styles.optionIcon}>{opt.icon}</Text>
                   <Text className={styles.optionName}>{opt.name}</Text>
-                  {picked && !isMissing ? <Text className={styles.optionMark}>✕</Text> : null}
+                  {isPicked && !isMissing ? <Text className={styles.optionMark}>✕</Text> : null}
                   {isMissing && pickedName ? <Text className={styles.optionMarkRight}>✓</Text> : null}
                 </View>
               )
@@ -213,7 +289,8 @@ const ItemMemoryPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime) / 1000))}
         exp={expGain(score, difficulty)}
-        detail={`${DIFFICULTY_LABEL[difficulty]} · 共 ${ROUNDS} 轮，累计得分 ${score}`}
+        best={bestBefore}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · 共 ${ROUNDS} 轮，命中 ${correctRef.current} 轮`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

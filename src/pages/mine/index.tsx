@@ -15,7 +15,7 @@ const MinePage: React.FC = () => {
   const expInLevel = store.profile.exp % EXP_PER_LEVEL
 
   const entries = [
-    { icon: '🏆', name: '排行榜', desc: '看看别人的脑力值', url: '/pages/mine/leaderboard/index' },
+    { icon: '🏆', name: '成长榜', desc: '个人最佳成绩与段位', url: '/pages/mine/leaderboard/index' },
     { icon: '🎖️', name: '成就殿堂', desc: `${store.achievements.length}/${ACHIEVEMENTS.length} 已解锁`, url: '/pages/mine/achievements/index' },
     { icon: '⚙️', name: '设置', desc: '音效、震动与音乐', url: '/pages/mine/settings/index' }
   ]

@@ -34,6 +34,45 @@
   white-space: pre-line;
 }
 
+/* 历史最佳 / 训练次数提示 */
+.recordLine {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-md;
+  text-align: center;
+  letter-spacing: 1rpx;
+}
+
+/* 三轮进度圆点 */
+.roundRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: $spacing-md;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.12);
+  transition: all 0.25s ease;
+}
+
+.dotCurrent {
+  width: 40rpx;
+  background: $color-primary;
+}
+
+.dotRight {
+  background: $color-success;
+}
+
+.dotWrong {
+  background: $color-error;
+}
+
 .startBtn {
   width: 480rpx;
   height: $button-height-lg;
@@ -126,6 +165,7 @@
 
 .cell {
   aspect-ratio: 1;
+  min-height: 100rpx;
   background: $color-bg-inset;
   border: 1rpx solid $color-border;
   border-radius: $radius-xs;
@@ -153,6 +193,21 @@
 .cellWrong {
   background: rgba(230, 69, 69, 0.2);
   border: 1rpx solid $color-error;
+}
+
+/* 答错后揭示正确位置 */
+.cellReveal {
+  background: rgba(212, 175, 55, 0.14);
+  border: 1rpx solid $color-primary;
+  box-shadow: inset 0 0 20rpx $color-gold-glow;
+}
+
+.revealTag {
+  position: absolute;
+  top: 4rpx;
+  right: 8rpx;
+  font-size: $font-size-xs;
+  color: $color-primary;
 }
 
 .cellText {

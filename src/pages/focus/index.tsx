@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
@@ -7,6 +7,7 @@ import ResultOverlay from '@/components/ResultOverlay'
 import StyledView from '@/components/StyledView'
 import { feedback } from '@/utils/feedback'
 import { useTrainingBgm } from '@/utils/bgm'
+import { getStatusBarTop } from '@/utils/safeArea'
 import styles from './index.module.scss'
 
 const DURATIONS = [15, 25, 45, 60]
@@ -19,19 +20,33 @@ const FocusPage: React.FC = () => {
   const [remainSec, setRemainSec] = useState(25 * 60)
   const [running, setRunning] = useState(false)
   const [completed, setCompleted] = useState(false)
+  // 结束时刻（毫秒）：按真实时间差计算剩余秒数，
+  // 避免 App 切到后台被系统节流后计时变慢、专注时长失真
+  const endAt = useRef(0)
 
   useEffect(() => {
     if (!running) return
     const timer = setInterval(() => {
-      setRemainSec((s) => {
-        if (s <= 1) {
-          clearInterval(timer)
-          return 0
-        }
-        return s - 1
-      })
+      const left = Math.max(0, Math.round((endAt.current - Date.now()) / 1000))
+      setRemainSec(left)
     }, 1000)
     return () => clearInterval(timer)
+  }, [running])
+
+  // 专注中保持屏幕常亮（微信小程序与部分浏览器支持，失败时静默忽略）
+  useEffect(() => {
+    try {
+      Taro.setKeepScreenOn({ keepScreenOn: running })
+    } catch {
+      // ignore
+    }
+    return () => {
+      try {
+        Taro.setKeepScreenOn({ keepScreenOn: false })
+      } catch {
+        // ignore
+      }
+    }
   }, [running])
 
   // 完成检测
@@ -52,23 +67,32 @@ const FocusPage: React.FC = () => {
     setTotalSec(m * 60)
     setRemainSec(m * 60)
     setCompleted(false)
+    endAt.current = 0
   }
 
   const toggleRunning = () => {
     if (completed) {
       setCompleted(false)
       setRemainSec(totalSec)
+      endAt.current = Date.now() + totalSec * 1000
       setRunning(true)
       return
     }
-    setRunning((r) => !r)
+    setRunning((r) => {
+      const next = !r
+      endAt.current = next ? Date.now() + remainSec * 1000 : 0
+      return next
+    })
   }
 
   const reset = () => {
     setRunning(false)
     setCompleted(false)
     setRemainSec(totalSec)
+    endAt.current = 0
   }
+
+  const statusTop = getStatusBarTop()
 
   const mm = String(Math.floor(remainSec / 60)).padStart(2, '0')
   const ss = String(remainSec % 60).padStart(2, '0')
@@ -82,7 +106,11 @@ const FocusPage: React.FC = () => {
     <View className={styles.container}>
       <NavBar title="番茄专注钟" />
       {/* 背景音乐开关（悬浮于导航栏右侧） */}
-      <View className={styles.musicFab} onClick={toggleMusic}>
+      <View
+        className={styles.musicFab}
+        style={statusTop ? { top: `${statusTop + 10}px` } : undefined}
+        onClick={toggleMusic}
+      >
         <Text className={styles.musicFabIcon}>{musicOn ? '🎵' : '🔇'}</Text>
       </View>
       <View className={styles.content}>

@@ -6,7 +6,7 @@ import GameShell from '@/components/GameShell'
 import ResultOverlay from '@/components/ResultOverlay'
 import StyledView from '@/components/StyledView'
 import { getGameMeta } from '@/data/games'
-import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL, bestScoreOf, trainCountOf } from '@/utils/score'
 import { feedback } from '@/utils/feedback'
 import { randomInt, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
@@ -129,11 +129,14 @@ const TrackingPage: React.FC = () => {
   const [speedKey, setSpeedKey] = useState<SpeedKey>('normal')
   const [correctCount, setCorrectCount] = useState(0)
   const [score, setScore] = useState(0)
+  // 本次开始前的历史最佳，用于结算页判断是否刷新纪录（addRecord 后历史会变，必须提前快照）
+  const [bestBefore, setBestBefore] = useState(0)
   const startTime = useRef(0)
 
   const speedFactor = SPEED_OPTIONS.find((s) => s.key === speedKey)!.factor
 
   const startGame = () => {
+    setBestBefore(bestScoreOf(useUserStore.getState().history, 'tracking'))
     const targetIds = new Set(shuffle(Array.from({ length: cfg.balls }, (_, i) => i)).slice(0, cfg.targets))
     const positions = placeBalls(cfg.balls)
     const newBalls: Ball[] = positions.map((pos, i) => {
@@ -160,14 +163,30 @@ const TrackingPage: React.FC = () => {
     setStage('mark')
   }
 
-  // 观察阶段：requestAnimationFrame 驱动全部球移动，碰壁反弹 + 球球弹性碰撞
+  // 观察阶段：动画帧驱动全部球移动，碰壁反弹 + 球球弹性碰撞
   useEffect(() => {
     if (stage !== 'observe') return
-    let raf = 0
-    let last = performance.now()
+    // 小程序环境没有 requestAnimationFrame，退化用 setTimeout 定时驱动
+    const rafFn: (cb: FrameRequestCallback) => number =
+      typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame
+        : (cb) => setTimeout(() => cb(Date.now()), 16) as unknown as number
+    const cancelFn: (id: number) => void =
+      typeof cancelAnimationFrame === 'function'
+        ? cancelAnimationFrame
+        : (id) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>)
+    let handle = 0
+    let last = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now()
+    // 小程序每次 setData 都有跨线程通信开销：限制到约 30fps，保证十几颗球同时运动仍然流畅
+    const minInterval = process.env.TARO_ENV === 'weapp' ? 32 : 0
+    let acc = 0
     const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000) // 秒，限制切后台后的跳变
+      handle = rafFn(tick)
+      acc += now - last
       last = now
+      if (acc < minInterval) return
+      const dt = Math.min(0.05, acc / 1000) // 秒，限制切后台后的跳变
+      acc = 0
       setBalls((prev) => {
         // 1. 全部球匀速移动，碰壁反弹
         const moved = prev.map((b) => {
@@ -194,10 +213,9 @@ const TrackingPage: React.FC = () => {
         // 2. 球球弹性碰撞
         return resolveCollisions(moved)
       })
-      raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    handle = rafFn(tick)
+    return () => cancelFn(handle)
   }, [stage])
 
   // 标记阶段倒计时：目标球闪烁展示 MARK_SEC 秒后进入观察（本地计时器驱动，
@@ -318,6 +336,9 @@ const TrackingPage: React.FC = () => {
     result: '结算'
   }
 
+  const liveBest = bestScoreOf(store.history, 'tracking')
+  const liveCount = trainCountOf(store.history, 'tracking')
+
   return (
     <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
       {/* 介绍 */}
@@ -330,6 +351,9 @@ const TrackingPage: React.FC = () => {
             先闪烁标记 {cfg.targets} 颗目标球，请记住它们；{"\n"}
             随后全部同色自由移动、相互碰撞，{"\n"}
             {cfg.observeSec} 秒后全场定格并编号，凭记忆点出那 {cfg.targets} 颗。
+          </Text>
+          <Text className={styles.recordLine}>
+            {liveCount > 0 ? `历史最佳 ${liveBest} 分 · 已训练 ${liveCount} 次` : '首次挑战，记录从这一次开始'}
           </Text>
           <View className={styles.speedRow}>
             <Text className={styles.speedLabel}>移动速度</Text>
@@ -444,6 +468,7 @@ const TrackingPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime.current) / 1000))}
         exp={expGain(score, difficulty)}
+        best={bestBefore}
         detail={`${DIFFICULTY_LABEL[difficulty]} · 命中 ${correctCount}/${cfg.targets} 个移动球`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}

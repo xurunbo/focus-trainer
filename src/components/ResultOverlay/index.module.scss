@@ -121,8 +121,26 @@
 .detail {
   font-size: $font-size-sm;
   color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  text-align: center;
+}
+
+/* 纪录对比：首次记录 / 历史最佳 */
+.record {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
   margin-bottom: $spacing-lg;
   text-align: center;
+}
+
+/* 刷新纪录时高亮 */
+.recordNew {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+  text-shadow: 0 0 16rpx $color-gold-glow;
 }
 
 .btnRow {

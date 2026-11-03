@@ -1,12 +1,13 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useUserStore } from '@/store/user'
 import StyledView from '@/components/StyledView'
 import { GAMES } from '@/data/games'
 import { generateDailyPlan } from '@/data/plan'
 import { brainScoreTotal, EXP_PER_LEVEL } from '@/utils/score'
 import PlatformStrip from '@/components/PlatformStrip'
+import { topPaddingStyle } from '@/utils/safeArea'
 import styles from './index.module.scss'
 
 const HomePage: React.FC = () => {
@@ -18,8 +19,14 @@ const HomePage: React.FC = () => {
 
   const go = (url: string) => Taro.navigateTo({ url })
 
+  // 微信小程序转发卡片（H5 端自动为空实现）
+  useShareAppMessage(() => ({
+    title: '脑力修炼馆 · 每天 10 分钟，练出专注力',
+    path: '/pages/home/index'
+  }))
+
   return (
-    <View className={styles.container}>
+    <View className={styles.container} style={topPaddingStyle(14)}>
       {/* 顶部用户卡片 */}
       <View className={styles.hero}>
         <View className={styles.heroTop}>

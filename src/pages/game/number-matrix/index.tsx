@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore, showAchievementToasts } from '@/store/user'
@@ -6,7 +6,7 @@ import GameShell from '@/components/GameShell'
 import CountdownRing from '@/components/CountdownRing'
 import ResultOverlay from '@/components/ResultOverlay'
 import { getGameMeta } from '@/data/games'
-import { expGain, DIFFICULTY_LABEL } from '@/utils/score'
+import { expGain, DIFFICULTY_LABEL, bestScoreOf, trainCountOf } from '@/utils/score'
 import { feedback } from '@/utils/feedback'
 import { randomInt, shuffle } from '@/utils/random'
 import type { Difficulty } from '@/types'
@@ -41,8 +41,17 @@ const NumberMatrixPage: React.FC = () => {
   const [flashBtn, setFlashBtn] = useState<'' | 'yes' | 'no'>('')
   const [score, setScore] = useState(0)
   const [startTime, setStartTime] = useState(0)
+  const [results, setResults] = useState<('right' | 'wrong' | null)[]>([])
+  const [bestBefore, setBestBefore] = useState(0)
+  // 答题节奏很快，用 ref 防止连点重复判题、并保证结算分数准确
+  const correctRef = useRef(0)
+  const flashRef = useRef(false)
+  const memorizeEndAt = useRef(0)
 
   const startGame = () => {
+    setBestBefore(bestScoreOf(useUserStore.getState().history, 'number-matrix'))
+    correctRef.current = 0
+    flashRef.current = false
     const nums = new Set<number>()
     while (nums.size < 36) nums.add(randomInt(10, 98))
     const newGrid = Array.from(nums)
@@ -65,24 +74,48 @@ const NumberMatrixPage: React.FC = () => {
     setCorrectCount(0)
     setScore(0)
     setLastAnswer('none')
+    setFlashBtn('')
+    setResults([])
     setStartTime(Date.now())
     setStage('memorize')
   }
 
+  // 记忆阶段兜底计时：即便 CountdownRing 的动画因切后台暂停，也能按真实时间进入答题
+  useEffect(() => {
+    if (stage !== 'memorize') return
+    memorizeEndAt.current = Date.now() + cfg.memorizeSec * 1000
+    const timer = setInterval(() => {
+      if (Date.now() >= memorizeEndAt.current) {
+        clearInterval(timer)
+        setStage('question')
+      }
+    }, 300)
+    return () => clearInterval(timer)
+  }, [stage, cfg.memorizeSec])
+
   const answer = (sayAppeared: boolean) => {
-    if (flashBtn) return
+    if (flashRef.current) return
+    flashRef.current = true
     const q = questions[qIndex]
     const right = sayAppeared === q.appeared
     feedback(right ? 'right' : 'wrong')
-    const nextCorrect = right ? correctCount + 1 : correctCount
-    setCorrectCount(nextCorrect)
+    if (right) {
+      correctRef.current += 1
+      setCorrectCount(correctRef.current)
+    }
+    setResults((prev) => {
+      const next = [...prev]
+      next[qIndex] = right ? 'right' : 'wrong'
+      return next
+    })
     setLastAnswer(right ? 'right' : 'wrong')
     setFlashBtn(sayAppeared ? 'yes' : 'no')
     setTimeout(() => {
       setLastAnswer('none')
       setFlashBtn('')
+      flashRef.current = false
       if (qIndex + 1 >= questions.length) {
-        finish(nextCorrect)
+        finish(correctRef.current)
       } else {
         setQIndex(qIndex + 1)
       }
@@ -120,6 +153,8 @@ const NumberMatrixPage: React.FC = () => {
   }
 
   const currentQ = questions[qIndex]
+  const liveBest = bestScoreOf(store.history, 'number-matrix')
+  const liveCount = trainCountOf(store.history, 'number-matrix')
 
   return (
     <GameShell title={meta.name} stage={stageLabel[stage]} requireConfirm={stage !== 'intro' && stage !== 'result'}>
@@ -130,6 +165,9 @@ const NumberMatrixPage: React.FC = () => {
           <Text className={styles.introText}>
             下面有三十六个数字，请在 {cfg.memorizeSec} 秒内记住它们。{"\n"}
             随后系统会给出数字，你要确认它真的出现过吗。
+          </Text>
+          <Text className={styles.recordLine}>
+            {liveCount > 0 ? `历史最佳 ${liveBest} 分 · 已训练 ${liveCount} 次` : '首次挑战，记录从这一次开始'}
           </Text>
           <View className={styles.startBtn} onClick={startGame}>
             <Text className={styles.startBtnText}>开始训练</Text>
@@ -157,18 +195,21 @@ const NumberMatrixPage: React.FC = () => {
           <View className={styles.numberBox}>
             <Text className={styles.numberText}>{currentQ.num}</Text>
           </View>
+          <Text className={styles.subTip}>
+            已答对 {correctCount} / {questions.length} 题
+          </Text>
           <View className={styles.progressDots}>
             {questions.map((_, i) => (
               <View
                 key={i}
                 className={
-                  i < qIndex
-                    ? lastAnswer === 'wrong' && i === qIndex - 1
-                      ? styles.dotWrong
-                      : styles.dotRight
-                    : i === qIndex
-                      ? styles.dotCurrent
-                      : styles.dot
+                  i === qIndex
+                    ? styles.dotCurrent
+                    : results[i] === 'right'
+                      ? styles.dotRight
+                      : results[i] === 'wrong'
+                        ? styles.dotWrong
+                        : styles.dot
                 }
               />
             ))}
@@ -208,7 +249,8 @@ const NumberMatrixPage: React.FC = () => {
         accuracy={score}
         durationSec={Math.max(1, Math.round((Date.now() - startTime) / 1000))}
         exp={expGain(score, difficulty)}
-        detail={`${DIFFICULTY_LABEL[difficulty]} · 答对 ${correctCount}/${questions.length} 题`}
+        best={bestBefore}
+        detail={`${DIFFICULTY_LABEL[difficulty]} · 答对 ${correctRef.current}/${questions.length} 题`}
         onRetry={startGame}
         onHome={() => Taro.reLaunch({ url: '/pages/home/index' })}
       />

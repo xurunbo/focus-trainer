@@ -1,4 +1,4 @@
 export default {
-  navigationBarTitleText: '排行榜',
+  navigationBarTitleText: '成长榜',
   navigationStyle: 'custom'
 }

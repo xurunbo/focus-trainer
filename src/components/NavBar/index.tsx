@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { topPaddingStyle } from '@/utils/safeArea'
 import styles from './index.module.scss'
 
 interface NavBarProps {
@@ -18,7 +19,7 @@ const NavBar: React.FC<NavBarProps> = ({ title }) => {
   }
 
   return (
-    <View className={styles.header}>
+    <View className={styles.header} style={topPaddingStyle(10)}>
       <View className={styles.backBtn} onClick={handleBack}>
         <Text className={styles.backIcon}>‹</Text>
       </View>

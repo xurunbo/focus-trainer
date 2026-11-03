@@ -71,6 +71,17 @@ export function gradeFromScore(score: number): { label: string; color: string } 
   return { label: '加油', color: '#e64545' }
 }
 
+// 指定项目的历史最佳成绩（用于准备页展示与结算页纪录对比）
+export function bestScoreOf(history: TrainingRecord[], gameId: string): number {
+  const recs = history.filter((h) => h.gameId === gameId)
+  return recs.length ? Math.max(...recs.map((r) => r.score)) : 0
+}
+
+// 指定项目的累计训练次数
+export function trainCountOf(history: TrainingRecord[], gameId: string): number {
+  return history.reduce((n, h) => (h.gameId === gameId ? n + 1 : n), 0)
+}
+
 // 训练统计
 export function summarizeHistory(history: TrainingRecord[]) {
   const total = history.length

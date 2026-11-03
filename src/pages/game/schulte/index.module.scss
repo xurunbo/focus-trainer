@@ -34,6 +34,15 @@
   white-space: pre-line;
 }
 
+/* 历史最佳 / 训练次数提示 */
+.recordLine {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-md;
+  text-align: center;
+  letter-spacing: 1rpx;
+}
+
 .modeRow {
   display: flex;
   gap: $spacing-md;
@@ -134,6 +143,22 @@
   padding: $spacing-md 0;
 }
 
+/* 进度条：已找到 / 总格数 */
+.progressTrack {
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+}
+
+.progressFill {
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: linear-gradient(90deg, $color-primary-dark, $color-primary);
+  transition: width 0.25s ease;
+}
+
 .statusItem {
   display: flex;
   flex-direction: column;
@@ -194,6 +219,7 @@
 .cell {
   width: calc((100% - 32rpx) / 5);
   aspect-ratio: 1;
+  min-height: 118rpx;
   background: linear-gradient(180deg, #2a2010 0%, $color-bg-card 100%);
   border: 1rpx solid $color-gold-border;
   border-radius: $radius-sm;
@@ -267,6 +293,7 @@
 .reviewCell {
   width: calc((100% - 32rpx) / 5);
   aspect-ratio: 1;
+  min-height: 118rpx;
   background: $color-bg-inset;
   border: 1rpx solid $color-border;
   border-radius: $radius-sm;
@@ -278,6 +305,7 @@
 .reviewCellDone {
   width: calc((100% - 32rpx) / 5);
   aspect-ratio: 1;
+  min-height: 118rpx;
   background: rgba(212, 175, 55, 0.1);
   border: 1rpx solid $color-primary;
   border-radius: $radius-sm;

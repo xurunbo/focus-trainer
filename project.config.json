@@ -2,7 +2,7 @@
   "miniprogramRoot": "dist/",
   "projectname": "心流小馆",
   "description": "专注力训练小程序",
-  "appid": "wx2bc238cae089e707",
+  "appid": "wx243c15d18a0e511b",
   "setting": {
     "urlCheck": true,
     "es6": false,
@@ -42,5 +42,6 @@
     "ignore": [],
     "include": []
   },
-  "editorSetting": {}
+  "editorSetting": {},
+  "isGameTourist": false
 }

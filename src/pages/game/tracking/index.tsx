@@ -166,27 +166,19 @@ const TrackingPage: React.FC = () => {
   // 观察阶段：动画帧驱动全部球移动，碰壁反弹 + 球球弹性碰撞
   useEffect(() => {
     if (stage !== 'observe') return
-    // 小程序环境没有 requestAnimationFrame，退化用 setTimeout 定时驱动
-    const rafFn: (cb: FrameRequestCallback) => number =
-      typeof requestAnimationFrame === 'function'
-        ? requestAnimationFrame
-        : (cb) => setTimeout(() => cb(Date.now()), 16) as unknown as number
-    const cancelFn: (id: number) => void =
-      typeof cancelAnimationFrame === 'function'
-        ? cancelAnimationFrame
-        : (id) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>)
-    let handle = 0
-    let last = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now()
-    // 小程序每次 setData 都有跨线程通信开销：限制到约 30fps，保证十几颗球同时运动仍然流畅
-    const minInterval = process.env.TARO_ENV === 'weapp' ? 32 : 0
-    let acc = 0
-    const tick = (now: number) => {
-      handle = rafFn(tick)
-      acc += now - last
+    const isWeapp = process.env.TARO_ENV === 'weapp'
+    let stopped = false
+    let rafId = 0
+    let timerId: ReturnType<typeof setTimeout> | null = null
+    let last = Date.now()
+
+    // 单帧推进：dt 一律按真实时间计算，并做异常保护（小程序垫片的时间戳可能非法）
+    const step = (stamp: number) => {
+      const now = Number.isFinite(stamp) ? stamp : Date.now()
+      let dt = (now - last) / 1000
       last = now
-      if (acc < minInterval) return
-      const dt = Math.min(0.05, acc / 1000) // 秒，限制切后台后的跳变
-      acc = 0
+      if (!Number.isFinite(dt) || dt <= 0) dt = 0.016
+      dt = Math.min(0.05, dt) // 秒，限制切后台后的跳变
       setBalls((prev) => {
         // 1. 全部球匀速移动，碰壁反弹
         const moved = prev.map((b) => {
@@ -214,8 +206,30 @@ const TrackingPage: React.FC = () => {
         return resolveCollisions(moved)
       })
     }
-    handle = rafFn(tick)
-    return () => cancelFn(handle)
+
+    if (isWeapp) {
+      // 微信小程序的 requestAnimationFrame 由 Taro 垫片实现，首帧时间戳为 NaN，
+      // 会把球坐标算成 NaN（表现为球完全不动），因此改用 setTimeout 驱动，时间戳统一取 Date.now()
+      const loop = () => {
+        if (stopped) return
+        step(Date.now())
+        timerId = setTimeout(loop, 32) // 小程序 setData 有跨线程开销，约 30 帧足够流畅
+      }
+      timerId = setTimeout(loop, 32)
+    } else {
+      const loop = (t: number) => {
+        if (stopped) return
+        rafId = requestAnimationFrame(loop)
+        step(t)
+      }
+      rafId = requestAnimationFrame(loop)
+    }
+
+    return () => {
+      stopped = true
+      if (rafId) cancelAnimationFrame(rafId)
+      if (timerId) clearTimeout(timerId)
+    }
   }, [stage])
 
   // 标记阶段倒计时：目标球闪烁展示 MARK_SEC 秒后进入观察（本地计时器驱动，

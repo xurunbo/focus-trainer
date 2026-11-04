@@ -21,7 +21,7 @@ const HomePage: React.FC = () => {
 
   // 微信小程序转发卡片（H5 端自动为空实现）
   useShareAppMessage(() => ({
-    title: '脑力修炼馆 · 每天 10 分钟，练出专注力',
+    title: '心流小馆 · 每天 10 分钟，练出专注力',
     path: '/pages/home/index'
   }))
 

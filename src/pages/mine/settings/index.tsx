@@ -94,7 +94,7 @@ const SettingsPage: React.FC = () => {
         <Text className={styles.cardHint}>数据仅保存在本机，清除后无法恢复</Text>
       </View>
 
-      <Text className={styles.version}>脑力修炼馆 v1.0.0</Text>
+      <Text className={styles.version}>心流小馆 v1.0.0</Text>
     </View>
   )
 }

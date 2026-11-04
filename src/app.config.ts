@@ -19,7 +19,7 @@ export default defineAppConfig({
     navigationBarBackgroundColor: '#17120a',
     // 沉浸式：tab 页不显示系统标题栏，由页面自渲染头部
     navigationStyle: 'custom',
-    navigationBarTitleText: '脑力修炼馆',
+    navigationBarTitleText: '心流小馆',
     navigationBarTextStyle: 'white'
   },
   tabBar: {

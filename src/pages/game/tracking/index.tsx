@@ -60,7 +60,7 @@ function resolveCollisions(balls: Ball[]): Ball[] {
       const b = next[j]
       let dx = b.x - a.x
       let dy = b.y - a.y
-      let dist = Math.hypot(dx, dy)
+      let dist = Math.sqrt(dx * dx + dy * dy)
       if (dist === 0) {
         // 完全重合时给确定性微小方向，避免除零
         dx = 1
@@ -91,6 +91,46 @@ function resolveCollisions(balls: Ball[]): Ball[] {
 
 type Stage = 'intro' | 'mark' | 'observe' | 'answer' | 'result'
 
+// 推进一帧：先按速度移动并处理碰壁反弹，再做球球碰撞
+function advanceBalls(balls: Ball[], dt: number): Ball[] {
+  const moved = balls.map((b) => {
+    let nx = b.x + b.vx * dt
+    let ny = b.y + b.vy * dt
+    let nvx = b.vx
+    let nvy = b.vy
+    if (nx < EDGE) {
+      nx = EDGE
+      nvx = -b.vx
+    } else if (nx > BOX_W - BALL_SIZE - EDGE) {
+      nx = BOX_W - BALL_SIZE - EDGE
+      nvx = -b.vx
+    }
+    if (ny < EDGE) {
+      ny = EDGE
+      nvy = -b.vy
+    } else if (ny > BOX_H - BALL_SIZE - EDGE) {
+      ny = BOX_H - BALL_SIZE - EDGE
+      nvy = -b.vy
+    }
+    return { ...b, x: nx, y: ny, vx: nvx, vy: nvy }
+  })
+  return resolveCollisions(moved)
+}
+
+// 小程序端：进入观察前一次性把整段轨迹算好（固定 30 帧/秒），
+// 播放时每帧只做一次 setData，不依赖真机的帧回调，也不会出现坐标 NaN
+const PLAN_FPS = 30
+function planTrajectory(balls: Ball[], seconds: number): { x: number; y: number }[][] {
+  const steps = Math.max(1, Math.round(seconds * PLAN_FPS))
+  let sim = balls
+  const frames: { x: number; y: number }[][] = []
+  for (let i = 0; i < steps; i++) {
+    sim = advanceBalls(sim, 1 / PLAN_FPS)
+    frames.push(sim.map((b) => ({ x: b.x, y: b.y })))
+  }
+  return frames
+}
+
 // 随机摆放球体，尽量互不重叠（拒绝采样）
 function placeBalls(count: number): { x: number; y: number }[] {
   const placed: { x: number; y: number }[] = []
@@ -105,7 +145,7 @@ function placeBalls(count: number): { x: number; y: number }[] {
       const ok = placed.every((p) => {
         const dx = p.x + BALL_SIZE / 2 - (pos.x + BALL_SIZE / 2)
         const dy = p.y + BALL_SIZE / 2 - (pos.y + BALL_SIZE / 2)
-        return Math.hypot(dx, dy) >= minDist
+        return Math.sqrt(dx * dx + dy * dy) >= minDist
       })
       if (ok) break
     }
@@ -132,6 +172,8 @@ const TrackingPage: React.FC = () => {
   // 本次开始前的历史最佳，用于结算页判断是否刷新纪录（addRecord 后历史会变，必须提前快照）
   const [bestBefore, setBestBefore] = useState(0)
   const startTime = useRef(0)
+  // 小程序端的整段轨迹（进入观察时按帧播放；H5 端为空，实时计算即可）
+  const framesRef = useRef<{ x: number; y: number }[][]>([])
 
   const speedFactor = SPEED_OPTIONS.find((s) => s.key === speedKey)!.factor
 
@@ -155,6 +197,8 @@ const TrackingPage: React.FC = () => {
       }
     })
     setBalls(newBalls)
+    // 小程序端：开局即算好整段观察轨迹，标记阶段球不动，播放时直接用这份数据
+    framesRef.current = process.env.TARO_ENV === 'weapp' ? planTrajectory(newBalls, cfg.observeSec) : []
     setCorrectCount(0)
     setScore(0)
     setObserveLeft(cfg.observeSec)
@@ -163,72 +207,49 @@ const TrackingPage: React.FC = () => {
     setStage('mark')
   }
 
-  // 观察阶段：动画帧驱动全部球移动，碰壁反弹 + 球球弹性碰撞
+  // 观察阶段：让全部球移动，碰壁反弹 + 球球弹性碰撞
   useEffect(() => {
     if (stage !== 'observe') return
-    const isWeapp = process.env.TARO_ENV === 'weapp'
-    let stopped = false
+
+    // 小程序端：开局已算好整段轨迹，这里只按时间播放对应帧，避免真机上实时计算不稳
+    if (process.env.TARO_ENV === 'weapp') {
+      const frames = framesRef.current
+      if (!frames.length) return
+      const startAt = Date.now()
+      const frameMs = 1000 / PLAN_FPS
+      const timer = setInterval(() => {
+        const elapsed = Date.now() - startAt
+        const idx = Math.min(frames.length - 1, Math.max(0, Math.floor(elapsed / frameMs)))
+        const frame = frames[idx]
+        setBalls((prev) => prev.map((b, i) => ({ ...b, x: frame[i].x, y: frame[i].y })))
+      }, frameMs)
+      return () => clearInterval(timer)
+    }
+
+    // H5 端：浏览器帧回调足够稳定，按真实时间实时推进
     let rafId = 0
-    let timerId: ReturnType<typeof setTimeout> | null = null
-    let last = Date.now()
-
-    // 单帧推进：dt 一律按真实时间计算，并做异常保护（小程序垫片的时间戳可能非法）
+    let stopped = false
+    let last = 0
     const step = (stamp: number) => {
-      const now = Number.isFinite(stamp) ? stamp : Date.now()
-      let dt = (now - last) / 1000
-      last = now
-      if (!Number.isFinite(dt) || dt <= 0) dt = 0.016
-      dt = Math.min(0.05, dt) // 秒，限制切后台后的跳变
-      setBalls((prev) => {
-        // 1. 全部球匀速移动，碰壁反弹
-        const moved = prev.map((b) => {
-          let nx = b.x + b.vx * dt
-          let ny = b.y + b.vy * dt
-          let nvx = b.vx
-          let nvy = b.vy
-          if (nx < EDGE) {
-            nx = EDGE
-            nvx = -b.vx
-          } else if (nx > BOX_W - BALL_SIZE - EDGE) {
-            nx = BOX_W - BALL_SIZE - EDGE
-            nvx = -b.vx
-          }
-          if (ny < EDGE) {
-            ny = EDGE
-            nvy = -b.vy
-          } else if (ny > BOX_H - BALL_SIZE - EDGE) {
-            ny = BOX_H - BALL_SIZE - EDGE
-            nvy = -b.vy
-          }
-          return { ...b, x: nx, y: ny, vx: nvx, vy: nvy }
-        })
-        // 2. 球球弹性碰撞
-        return resolveCollisions(moved)
-      })
+      let dt = (stamp - last) / 1000
+      last = stamp
+      if (!isFinite(dt) || dt <= 0) dt = 0.016
+      dt = Math.min(0.05, dt)
+      setBalls((prev) => advanceBalls(prev, dt))
     }
-
-    if (isWeapp) {
-      // 微信小程序的 requestAnimationFrame 由 Taro 垫片实现，首帧时间戳为 NaN，
-      // 会把球坐标算成 NaN（表现为球完全不动），因此改用 setTimeout 驱动，时间戳统一取 Date.now()
-      const loop = () => {
-        if (stopped) return
-        step(Date.now())
-        timerId = setTimeout(loop, 32) // 小程序 setData 有跨线程开销，约 30 帧足够流畅
-      }
-      timerId = setTimeout(loop, 32)
-    } else {
-      const loop = (t: number) => {
-        if (stopped) return
-        rafId = requestAnimationFrame(loop)
-        step(t)
-      }
+    const loop = (t: number) => {
+      if (stopped) return
       rafId = requestAnimationFrame(loop)
+      step(t)
     }
+    rafId = requestAnimationFrame((t) => {
+      last = t
+      loop(t)
+    })
 
     return () => {
       stopped = true
       if (rafId) cancelAnimationFrame(rafId)
-      if (timerId) clearTimeout(timerId)
     }
   }, [stage])
 
